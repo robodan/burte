@@ -6,7 +6,8 @@ written for the 68000 by Dan Christian, and ported to the 332 by
 Andrew H. Fagg (ahfagg@robotics.usc.edu).
 
 The code is mainly for historical purposes.  It hasn't been maintained
-in years.
+since 1995 and compiler standards have changed (e.g. there are actual
+standards now).
 
 
 This package comes with:
@@ -14,11 +15,9 @@ This package comes with:
 	tpulib - a library for interfacing to the 332's Time Processor
 Unit, written by Parag Batavia and Dan Spitzley.
 
+See doc/ for general documentation and src/history for lower level
+code changes.
 
 Comments, questions, bug reports, and bug fixes are welcome (email to
 ahfagg@robotics.usc.edu), but whether I will be able to respond in a
 reasonable amount of time remains to be seen.
-
-
-
-
