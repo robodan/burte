@@ -1,0 +1,302 @@
+.TH POPEYEKRN 1 "7 Jul 1983"
+.CM 3
+.SH "NAME"
+POP/i KRN \- Extended 68000 kernel
+.SH "DESCRIPTION"
+\fIPopeyekrn\fR is the extended kernel for the 68000 systems in use at CMU.
+It incorporates execution of user programs in 68000 \fIuser-privilege\fR
+mode. A number of debugging facilities have been added over previous
+kernels, including breakpoints and trace of assembly language instructions.
+The user interface has been polished somewhat and several commands
+re-implemented.
+.sp 0.5
+\fIPopeyekrn\fR uses 16KB of on-board EPROM space. Two versions, identical
+in their user interface, are supported: the \fBG\fR version for the C-MU
+developed CPU board (known as Gruss's board after its developer, \fIAndy
+Gruss\fR), and the \fBO\fR version for the Omnibyte OB68K1A board.
+.sp 0.5
+\fIPopeyekrn\fR provides a number of I/O and related services to the
+programmer of the 68000 system. It cleanly interacts with the extended
+library, \fIlibpopI68\fR, providing a number of new features including
+run-time stack checking. For details consult popI68(3).
+.SH "COMMANDS"
+When entering commands to the kernel, the
+following control sequences are recognized:
+.IP "\fB^H\fR" 1.0i
+Causes the previous character to be erased from the input line.
+The key labeled backspace usually sends a control-H in most terminals.
+.IP "\fB^W\fR" 1.0i
+Causes the previous word to be erased.
+.IP "\fB^U\fR" 1.0i
+Causes the entire line to be erased.
+.IP "\fB^T\fR" 1.0i
+Swaps (\fItwiddles\fR) the previous two characters in the buffer.
+.IP "\fB^V\fR" 1.0i
+Quotes the next character. This enables the user to enter one
+of the terminating characters into the buffer. It is also possible to enter
+one of the characters bound to special functions (see below).
+.IP "\fB^R\fR" 1.0i
+Causes the system's idea of what has been entered so far to be
+re-typed onto the screen
+.LP
+.sp 0.5
+Input to \fIpopeyekrn\fR will terminate when one of the following characters
+is entered: carriage-return (<CR>), line-feed (<LF>) or escape (<ESC>). Most
+commands accept any of them indiscriminately although some will assign
+different meanings to each terminator. The kernel maintains a buffer of
+limited size (currently 128 characters) and will refuse to accept another
+character once it has been filled. The user must then make room for one of
+the terminating characters via an erasing command (\fB^H\fR, \fB^W\fR or
+\fB^U\fR).
+.sp 0.5
+At \fIany\fR time the user may press the \fBbreak\fR key to enter
+\fItransparent\fR mode. The line typed so far will be saved. In
+transparent mode an eight-bit path is formed between the console and the
+host. This is how the user edits, compiles and debugs programs on the VAX.
+Another \fBbreak\fR will return the user
+to command mode (a \fB^R\fR will show the contents of the line buffer).
+.sp 0.5
+The following commands are recognized by POP/i KRN (an on-line summary may
+be obtained by typing \fB?\fR when in command mode):
+.IP "" 1.0i
+.ta 1.0i
+.ti -1.0i
+\fB\\	\fR\c
+Initiate a cold reset. It resets all MULTIBUS devices
+and then performs a full software reset.
+.IP "\fBa\fR \fIaddr\fR" 1.0i
+Set the first dynamically allocated address to \fIaddr\fR.
+The address will reset to its default value (currently 0x30000) on a 
+cold restart (power up, depressing the reset button, using the \fB\\\fR
+command, or invoking the \fB^\\\fR special function below). For more details,
+see \fB\s-1DYNAMIC MEMORY ALLOCATION\s+1\fR below.
+.IP "\fBb  w  l\fR \fIaddr\fR" 1.0i
+Enter the \fIopen\fR mode for inspecting and altering memory
+locations. The invocation will define whether a byte, word or longword
+should be retrieved from location \fIaddr\fR. The user must keep in mind
+that in the 68000 word and longword addresses must be even. An address error
+exception is generated otherwise. The system will display the
+contents of the location and wait for input from the keyboard. The user may
+enter a new value (in hexadecimal notation) to change the
+contents. The next action will depend on the terminating character. If a
+<CR> is used, open mode is exited; if <LF> is used, the system will
+display the next location; finally, if <ESC> is used, the system will
+display the previous location. Note that if the user doesn't enter a new
+hexadecimal value, the previous contents remain in the location opened.
+.IP "\fBc\fR" 1.0i
+Continue execution at a stopped address. It is
+assumed that one of three conditions holds: (1) the user stopped the program
+previously via \fB^Z\fR (see \fB\s-1SPECIAL FUNCTIONS\s+1\fR below);
+(2) a breakpoint was
+encountered in the program; or (3) a number of assembly instructions have
+been traced. Only programs running in user-privilege mode may be stopped,
+traced and continued.
+.IP "\fBB W L\fR \fIaddr1\fR \fIaddr2\fR" 1.0i
+Display a range of memory. Again the different
+invocations tell the system whether bytes, words or longwords should be
+displayed. There are two possible interpretations of \fIaddr1\fR and
+\fIaddr2\fR: If addr2 is greater than addr1, all bytes
+(words/longwords) in the range [addr1\-addr2] will be displayed.
+Otherwise, addr2 is taken as the number of units (bytes, words or longwords)
+to be displayed, starting with addr1. Both addr1 and addr2 should be entered
+in hexadecimal notation.
+.IP "\fBd\fR \fIfile\fR" 1.0i
+Download and execute a Unix \fIfile\fR. The kernel
+will invoke \fBmdl68\fR, the program that ships the executable file from the
+VAX. At the end of the (successful) download, control is transferred to the
+entry point of such file. The user should note that it is not possible to
+pass an argument string to the program since the rest of the input line is
+interpreted as the name of the file to be retrieved. For passing parameters,
+see the related commands \fBr\fR, \fBR\fR and \fBg\fR below.
+.IP "\fBD\fR" 1.0i
+Toggle the internal \fIdebug\fR flag. It is used in
+conjunction with \fBmdb68\fR, the interactive debugger that runs on the VAX.
+For more details see mdb68(1).
+.IP "\fBg\fR \fIaddr string\fR" 1.0i
+This command is used to transfer execution to a previously downloaded
+program. There are a few flavors of this command: (1) if \fIaddr\fR is
+specified (in hexadecimal notation), control will be transferred there
+(note that this should be the
+entry point of an executable file); (2) if the command \fBg.\fR
+\fIstring\fR is typed (\fBg\fR immediately followed by a dot,)
+the previous entry point will be used; and (3) if the command is typed
+simply as \fBg\fR \fIstring\fR, execution is passed to the previous address
+used in a \fBg\fR command. In all cases the string is passed verbatim to the
+program as the argument of main (). For obvious reasons, if flavor (3) is
+used, the string should not begin with a valid hexadecimal number.
+.IP "\fBK\fR" 1.0i
+Kill all active breakpoints.
+.IP "\fBn\fR" 1.0i
+Execute the \fInext\fR single assembly language instruction.
+Similar capabilities at the C language level are provided by \fBmdb68\fR. The
+program must have been stopped by either a previous breakpoint, a previous
+trace (\fBn\fR or \fBT\fR commands), or by depressing \fB^Z\fR.
+.IP "\fBp\fR" 1.0i
+Print the \fIregister block\fR. This is a block
+containing the values that will be loaded into the registers prior to a
+continuation command (\fBc\fR, \fBn\fR or \fBT\fR commands). The register
+block therefore has the contents of the registers when execution was
+last stopped.
+.IP "\fBr\fR \fIfile\fR" 1.0i
+Read a Unix \fIfile\fR. This is similar to the
+\fBd\fR command above, except that control is retained by the kernel. The
+user may use the \fBg\fR command to pass control to a downloaded file,
+including an argument string.
+.IP "\fBR\fR \fIcommand\fR" 1.0i
+This command is a stripped-down version of \fBr\fR. It will not invoke
+\fBmdl68\fR, like the \fBd\fR and \fBr\fR commands, but rather send the
+\fIcommand\fR verbatim to the VAX.
+.IP "\fBs\fR \fIrate\fR" 1.0i
+Set the \fIhost\fR communication baudrate (the console is fixed at 9600
+baud). \fIrate\fR must match one of: 50, 75, 110, 134, 150, 300, 600, 1200,
+1800, 2000, 2400, 3600, 4800, 7200, 9600 or 19200.
+.IP "\fBS\fR \fIaddr\fR" 1.0i
+Set a breakpoint at the address specified (in hexadecimal notation). The
+system remembers up to ten active breakpoints.  When either the \fBS\fR or
+the \fBU\fR commands is executed, the system will print out the currently
+active breakpoints. The command \fBS\fR alone may thus be used to
+interrogate the system about the list.
+.IP "\fBt\fR" 1.0i
+Update the time of day of the machine. This command attempts to execute
+\fBtime68\fR on the host. If the user is not logged in, the system will hang
+indefinitely (until \fBDEL\fR is depressed). The time of day is set back to
+zero each time a cold reset is performed.
+.IP "\fBT\fR \fIn\fR" 1.0i
+Execute \fIn\fR assembly language instructions before returning to command
+mode. If \fIn\fR is not specified, the command behaves identically to the
+\fBn\fR command above. Again, the program must have been stopped by either
+\fB^Z\fR, a breakpoint or a previous trace.
+.IP "\fBU\fR \fIaddr\fR" 1.0i
+Unset an active breakpoint. The system will complain
+if there is no breakpoint at the specified address. Note that the \fBK\fR
+command is provided as a quick way of deleting all breakpoints.
+.IP "\fBx\fR" 1.0i
+Print out a system-status collection of messages including the time of day
+(in seconds since 1 January 1970), the kernel's idea of how much memory is
+there and how much is being managed dynamically (see below),  the last
+stopped address (and whether it is "continuable" or not), the register
+block, and the list of active breakpoints (if any).
+.SH "SPECIAL FUNCTIONS"
+\fIPopeyekrn\fR recognizes six special functions which are normally bound
+to special keys. They will invoke their special function anytime they are
+pressed, unless it is in the input line and they are quoted via \fB^V\fR.
+The six special functions and their default bindings are:
+.IP "\fB^S\fR" 1.0i
+Stop all output to the terminal.
+.IP "\fB^Q\fR" 1.0i
+Re-enable output to the terminal.
+.IP "\fB^O\fR" 1.0i
+When typing control-O, the output to the terminal is flushed to the
+NULL device.
+This may be used to speed up output of useless information. Note that \fB^O\fR
+works as a toggle and another \fB^O\fR is needed to restore output to the
+console.
+.IP "\fB^Z\fR" 1.0i
+Control-Z may be used anytime a user program is executing. The system
+will stop execution of the program and save enough context to enable
+continuation at a later time. It may be thought of as a real-time
+breakpoint. Execution may continue by one of the \fBc\fR, \fBn\fR or \fBT\fR
+commands.
+.IP "\fBDEL\fR" 1.0i
+Delete (sometimes labeled rubout) may be used to kill execution of a
+program. A warm restart is performed.
+.IP "" 1.0i
+.ta 1.0i
+.ti -1.0i
+\fB^\\	\fR\c
+Control-\\ is used to kill execution of a program, reset the system,
+re-initialize parity (non-destructively) on all memory and perform a cold
+restart. This function may not be unbound (see
+\fB\s-1BINDING USER FUNCTIONS\s+1\fR below).
+.SH "BINDING USER FUNCTIONS"
+There is a mechanism provided by \fIpopeyekrn\fR, and available through the
+extended library \fIlibpopI68\fR, for executing user functions when a single
+key is depressed. There is also a way of executing a user function at a
+particular time, either once or every so often.  The user function must be
+declared \fIbound\fR and will execute in user-privilege mode. It is also
+possible for the user to re-bind the kernel special functions (all except
+\fB^\\ \fR). More details may be found in bind(3) and bound(5).
+.SH "DYNAMIC MEMORY ALLOCATION"
+\fIPopeyekrn\fR will maintain a heap at the end of the available RAM.
+The initial address may be specified by the user via the \fBa\fR command and
+currently defaults to 0x30000. This heap is used by the system to obtain
+stack space for the user. The library functions malloc, calloc, realloc and
+free (identical to those in the Unix system,) also use the heap. The user is
+encouraged to use such functions to obtain space whenever needed (and free it
+afterwards).
+.SH "WRITING USER CODE"
+The 68000 systems at C-MU are mostly used by programmers, thus forcing
+\fIpopeyekrn\fR to have a clean interface with user code. The kernel is in
+charge of handling the low level I/O to the host and terminal communication
+links. It also provides facilities to make use of the on-board timers, and
+dynamically manages a heap of memory. From the programmer's side, all these
+functions are available via a number of library routines which interact with
+the kernel by use of the \fItrap\fR protocol of the 68000 (see traps68(3)).
+The programmer should consult the manual entry for the extended library,
+popI68(3), for more details as to what is currently available. Users of
+previous kernels may notice a number of enhanced debugging functions in
+POP/i KRN; furthermore, the kernel fully conforms with the new runtime stack
+checking which insures integrity of the user stack at a minimum cost. The
+details of how this is implemented may be found in the ccom68(1) manual
+entry.
+
+When compiling code to be downloaded by \fIpopeyekrn\fR, users should give
+the \fB\-vy\fR flag to \fIcc68\fR. Details may be found in cc68(1).
+.SH "WRITING SUPERVISOR CODE"
+Since all the I/O devices are protected from user programs, all I/O drivers
+must run in supervisor-privilege mode. \fIPopeyekrn\fR provides the
+programmer with a collection of facilities to write supervisor code. It
+should be noted that some of the debugging facilities will not work in
+supervisor mode and thus it is advisable to keep supervisor code to a
+minimum. Typically only those routines which actually interact with the
+hardware, and those which are interrupt dispatchers (and that, incidentally,
+\fImust\fR be declared reentrant \-see reentrant(5)) will execute in
+supervisor-privilege mode.
+
+The I/O routines available as traps for user privilege (see traps68(5)) are
+also available, under different name, in supervisor privilege. The
+programmer has only to include the file KrnTable.h and call the routine.
+Information is available in KrnTable(5).
+
+It is still possible to write a complete program in supervisor mode. It is
+most inadvisable to do so since the system integrity may not be maintained
+and most of the debugging facilities will not work. Furthermore, all the
+standard library I/O functions (like putchar (), printf (), etc) are not
+available in supervisor mode. If a programmer still wants to make his code
+run under supervisor privilege, he must compile it with the \-W (wizard)
+flag. Details appear in cc68(1).
+.SH "BUGS"
+\fBMdb68\fR is not fully implemented. In particular, the \fBD\fR command
+currently toggles a flag that nobody looks at. Future implementations of the
+kernel are expected to have full debugging under \fBmdb68\fR control.
+.sp 0.5
+The version \fBO\fR hasn't been implemented yet.
+.SH "SEE ALSO"
+.IP "popI68(3)" 1.2i
+Extended library for the 68000
+.IP "bind(3), bound(5)" 1.2i
+Details on binding functions with \fIpopeyekrn\fR
+.IP "KrnTable(5)" 1.2i
+Services available to routines running under supervisor privilege mode.
+.IP "reentrant(5)" 1.2i
+Header to be included in routines that are to be invoked by a hardware
+interrupt.
+.SH "HISTORY"
+.TP
+  7-Jul-83  Rafael Bracho (rxb) at Carnegie-Mellon University
+Revised to be accurate with V2.4 of POP/i KRN. The command
+\fBt\fR was added; references to the disappearance of
+breakpoints during tracing or single stepping were deleted (the
+bug was fixed); and the capabilities of binding functions to
+time and frequency were mentioned.
+
+.TP
+ 21-Mar-83  Rafael Bracho (rxb) at Carnegie-Mellon University
+This manual entry touched to make it more understandable.
+
+.TP
+ 17-Mar-83  Rafael Bracho (rxb) at Carnegie-Mellon University
+Created. The first release of \fIPOP/i KRN\fR (V 2.1) is finally
+ready.
+
+

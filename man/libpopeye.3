@@ -1,0 +1,730 @@
+.TH LIBPOPEYE 3P 8/2/83
+.CM 3
+.SH "NAME"
+libpopeye \- Image manipulation routines for the Popeye systems.
+.SH "SYNOPSIS"
+#include <popeye.h>
+.SH "DESCRIPTION"
+The popeye library is a collection of routines for manipulating
+the frame buffer hardware attendant to Popeye minicomputer systems.
+The library defines several useful abstract data types
+such as windows, viewports and cursors and provides routines
+for manipulating these types.
+.SH "INTRODUCTION"
+The following organization is basic to the understanding of the popeye
+library.
+.sp
+One or more television cameras are connected to a frame grabber.
+The frame grabber puts new frames into the frame buffer, which is accessible
+to both the screen refreshing process connected to the monitor
+and to the CPU.
+Whatever is put into the frame buffer from either the frame grabber or the
+CPU will instantly be seen on the monitor.
+To process data from the frame buffer, it may be accessed on a pixel by pixel
+basis.
+To reduce the inconvenience of this arrangement,
+a block of pixels is usually brought into main memory (core) once,
+and accessed from core thereafter.
+.sp
+An
+.B
+image
+is a collection of pixels on disk. Unfortunately, the disk is currently
+not supported.
+.sp
+A
+.B
+window
+is a collection of pixels in core augmented by a header containing information
+such as height and width.
+Since windows are completely independent of screen coordinates,
+a window's origin is undefined unless it is linked to an image
+(in which case the window is a subset of the image).
+Windows may be filled with data from any source, including a camera,
+an image or a computation process.
+.sp
+A
+.B
+vport
+is a conceptual rectangular boundary around a collection of pixels in the
+frame buffer.
+More than one vport may be linked to a window, but only one window may be
+linked to a vport.
+.sp
+A
+.B
+pane
+is a subset of the pixels in a window, for the purpose of excluding some
+window pixels from certain computations such as convolutions.
+A pane has no storage of its own, but merely contains offsets into the window
+storage buffer.
+Any number of panes may be linked to a window.
+.sp
+A
+.B
+cursor
+is a simple entity attributed with a screen position which is used to mark
+certain spots.
+Cursors appear to overlay the screen but actually save the data underneath
+themselves.
+.sp
+All routines in the popeye library are boolean, i.e., they return either
+TRUE or FALSE (definitions obtained from
+.I
+std68.h
+) unless otherwise noted.
+The
+.I
+Open()
+routines, for example, typically return pointers to structures.
+.sp
+An error variable called
+.I
+popeye_err
+is maintained by the library and set to certain constant values on receipt
+of various errors. The
+.B
+DIAGNOSTICS
+section explains the philosophy and use of the variable in detail.
+.SH "BASIC LIBRARY ROUTINES"
+.TP
+InitPopeye ()
+Initializes the library package.
+This routine should be called before any other library routines.
+.TP
+QuitPopeye ()
+Closes down the library in an orderly fashion.
+.TP
+isPopeye ()
+.br
+.ns
+.TP
+isConan ()
+Return TRUE if they can find frame buffer hardware at a magic address.
+Hence, programs which need to run on systems with no frame buffer as well as
+those with one can use this function to avoid calls to hardware routines.
+.i0
+.DT
+.PP
+.SH "BASIC HARDWARE ROUTINES"
+For simple applications, the following routines which access the hardware
+directly may be the most direct route to a working program.
+.TP
+GrabView (camera)
+Grabs a frame from the given
+.I
+camera
+[0-3] and places it in the
+frame buffer. Returns nothing.
+.TP
+ClearView ()
+Clears the frame buffer.
+Returns nothing.
+Both GrabView() and ClearView() happen in 33 msec.
+.TP
+GetPixel (x, y)
+Returns the pixel at
+.I
+(x,y)
+in the frame buffer. Remember to treat pixels as
+.I
+unsigned
+characters.
+The definition of PIXEL in
+.I
+popeye.h
+may be used for this.
+.TP
+PutPixel (x, y, p)
+Puts the pixel
+.I
+p
+into the frame buffer at
+.I
+(x,y).
+Returns nothing.
+.TP
+GetRow (y, x0, xlen, buffer)
+.br
+.ns
+.TP
+PutRow (y, x0, xlen, buffer)
+Gets (puts)
+.I
+xlen
+pixels starting at
+.I
+x0
+in row
+.I
+y
+into (from) the pixel buffer pointed to by
+.I
+buffer.
+.TP
+InitRow (y, x0, xlen, p)
+Same as PutRow() except that the single pixel
+.I
+p
+is put into all the pixels.
+.TP
+GetCol (x, y0, ylen, buffer)
+.br
+.ns
+.TP
+PutCol (x, y0, ylen, buffer)
+.br
+.ns
+.TP
+InitCol (x, y0, ylen, p)
+Similar to the row routines.
+.TP
+GetBlock (x0, y0, xlen, ylen, buffer)
+.br
+.ns
+.TP
+PutBlock (x0, y0, xlen, ylen, buffer)
+Gets (puts) the pixels in the given rectangular area into (from) the
+the buffer in standard raster scan order.
+The user should probably not have to use these
+routines for storing and displaying data, as the window and viewport
+routines described below perform these functions much more conveniently.
+.TP
+InitBlock (x0, y0, xlen, ylen, p)
+Fills the given block with pixel value
+.I
+p.
+.TP
+InstallTable (fp, imin, imax)
+(Conan hardware only.) Takes a function pointer
+.I
+fp,
+evaluates the function from
+.I
+imin
+to
+.I
+imax
+(inclusive) three times: once each for the red, green and blue lookup table
+columns.
+See the
+.B
+PROGRAMMING EXAMPLES
+section for suggestions on how the table function should be structured.
+.TP
+SetVectorType (texture)
+Sets the texture of hardware generated vectors.
+The eight bits of the character argument
+.I
+texture
+are used cyclically to decide whether or not to plot a point.
+Useful values of
+.I
+texture
+are defined in popeye.h: V_SOLID, V_DOTTED, V_DASHED, V_BROKEN, V_DOTDASHED.
+.TP
+Vector (x0, y0, x1, y1, shade)
+Uses the hardware to generate a vector of the given shade using the texture
+last set by SetVectorType().
+During initialization (InitPopeye() or InitFrame()), the texture is set to
+V_SOLID.
+.i0
+.DT
+.PP
+.SH "WINDOWS"
+For more complicated applications, the routines which manipulate upper-level
+abstract data types such as windows and vports will be much more convenient
+than raw hardware routines.
+The following macros are available for accessing the elements of window
+structures.
+.TP
+WindowWidth (wp)
+Yields the horizontal dimension of the window structure pointed to by wp.
+.TP
+WindowHeight (wp)
+Yields the vertical dimension of wp.
+.TP
+WindowData (wp)
+Yields a pointer to an array of PIXELs which contains the window's data.
+.i0
+.DT
+.PP
+The following routines are the basic routines for manipulating windows.
+.TP
+OpenWindow (xlen, ylen)
+Allocates space for a window structure and a core buffer big enough to
+hold
+.I
+xlen*ylen
+pixels.
+It returns a pointer to a WINDOW structure or NULL if something goes wrong.
+The
+.I
+popeye_err
+variable may be set to BAD_SIZE if the given dimensions are less than or equal
+to zero, or NO_MORE_CORE if there is not enough available space on the heap.
+.TP
+CheckWindow (wp)
+is a boolean function which returns TRUE if the window looks ok.
+Values of
+.I
+popeye_err
+may be NULL_POINTER or ODD_POINTER if the pointer is bad,
+NO_MEMORY if the pointer points off into a vacuum or
+NONEXISTENT if the window cannot be found in the library's list of currently
+open windows.
+If the first tests all come up ok, the pointer to the data buffer for the
+window is also checked.
+.TP
+SetWindow (wp, x0, y0, xlen, ylen)
+Updates the window to have the given parameters.
+If the window is not linked to an image, the origin parameters are ignored.
+SetWindow() can fail for a variety of reasons:
+the window is bad; the size is bad; a PANE linked to the window will not fit
+into the requested window (PANE_ERROR),
+the window is linked to a vport and a size change was requested;
+not enough core is available to update the size of the pixel buffer.
+User programs can recover from all errors except the last, since the old
+buffer is released before requesting a new one.
+.TP
+MoveWindow (wp, dx, dy)
+Moves the window origin by the given increment.
+.TP
+LoadWindow (wp, vp)
+Loads a window with data from the given vport.
+Returns FALSE if the window and vport are not linked.
+.TP
+ShowWindow (wp)
+Shows the contents of the window in all visible vports to which the window is
+linked.
+Returns FALSE if the window is not linked to a vport.
+.TP
+CopyWindow (wp, dupflag)
+Opens a new window the size of the given window, copies the data with a fast
+block transfer routine and, if
+.I
+dupflag
+is TRUE, duplicates a single vport which may be hanging off the given window,
+links it to the new one and excludes it
+(see ExcludeVport() below).
+A pointer to the new window is returned.
+.TP
+CloseWindow (wp)
+Closes the given window and releases the storage associated with it.
+Several side effects may happen on closing a window;
+windows are unlinked from the parent image; visible vports are unlinked
+from the window, while invisible ones are closed;
+panes linked to the window are closed.
+.i0
+.DT
+.PP
+.SH "VPORTS"
+The only caveats in using vports are that they must lie completely on the
+screen and that they may not occlude one another.
+The macros for accessing vport structure elements are
+VportX0 (vp) and VportY0 (vp) for obtaining the origin and
+VportWidth (vp) and VportHeight (vp) for obtaining the dimensions.
+The vport subroutines are given below.
+.TP
+OpenVport (x0, y0, xlen, ylen)
+Allocates a new vport at the given origin and of the given size and returns
+a pointer to it.
+Possible errors include BAD_SIZE if either dimension is <= 0 and
+OUT_OF_BOUNDS if the vport does not lie completely on the screen.
+.TP
+CheckVport (vp)
+Performs much the same function for a vport as CheckWindow() does for a
+window, with similar error conditions.
+.TP
+SetVport (vp, x0, y0, xlen, ylen)
+Sets a vport to have the given origin and dimensions.
+If the vport is not linked to a window, the operation is performed without
+question.
+If the vport is linked to a window and is the only vport linked to that
+window, and if a size change is requested, SetVport() calls SetWindow()
+to attempt a similar size change on the window.
+If the vport is one of two or more linked to the window, a change in size
+cannot be performed, and so SetVport() returns FALSE.
+.TP
+MoveVport (vp, dx, dy)
+Moves the vport origin by the given increment.
+.TP
+LinkVport (vp, wp)
+.br
+.ns
+.TP
+UnlinkVport (vp)
+LinkVport() makes sure that the sizes of the vport and window are the same and
+that the vport isn't already linked to another window, then establishes the
+link. UnlinkVport() does the obvious.
+.TP
+GetVport (wp, x, y, eflag)
+Allocates a vport for the given window at the given origin and links it to
+the window. If
+.I
+eflag
+is TRUE, the vport is excluded (see ExcludeVport() below).
+A pointer to the new vport is returned, or NULL if some error occurs.
+.TP
+FrameVport (vp, shade)
+.br
+.ns
+.TP
+GetFrame (vp, buffer)
+.br
+.ns
+.TP
+UnframeVport (vp, buffer)
+FrameVport() puts a frame around the vport using the given shade.
+If the pixels under the frame need to be saved and later replaced,
+GetFrame() and UnframeVport() will save and restore the pixels,
+respectively.
+.TP
+CloseVport (vp)
+Closes the given vport, unlinking it from an attached window if necessary.
+.i0
+.DT
+.PP
+In addition, there are some other macros for dealing with vports that look
+like subroutines. Since they are macros, however, they do not return anything
+(with the exception of FirstVport()).
+.TP
+ExcludeVport (vp)
+Effectively makes the given vport invisible.
+Excluded vports remain linked to the parent window but do not receive data
+during ShowWindow() operations and are automatically closed when the window
+is closed.
+.TP
+IncludeVport (vp)
+Makes the vport visible again.
+.TP
+FirstVport (wp)
+Yields a pointer to the first vport hanging off the given window or NULL
+if there isn't one.
+.TP
+ClearVport (vp)
+Clears the given vport by filling it with black.
+.i0
+.DT
+.PP
+.SH "CURSORS"
+Cursors are very simple and very easy to use
+since they do not link to anything.
+They are very good for demos, as they appear to fly about the screen doing
+all the processing on their own.
+.TP
+OpenCursor (x, y)
+Opens a cursor at the given position and returns a pointer to it.
+Returns NULL and sets
+.I
+popeye_err
+to OUT_OF_BOUNDS if the position is off the screen.
+.TP
+CheckCursor (cp)
+Checks the quality of a cursor.
+.TP
+SetCursor (cp, x, y)
+Sets a cursor to the given position, regardless of whether it is visible or
+not.
+If the cursor is visible, it will first be erased at its current position,
+moved to the new position and then reshown.
+.TP
+MoveCursor (cp, dx, dy)
+Moves a cursor by the given increments.
+.TP
+ShowCursor (cp, shade)
+Makes the given cursor visible at the given shade.
+.TP
+EraseCursor (cp)
+Makes the cursor go away.
+.TP
+CloseCursor (cp)
+Closes the cursor (without erasing it).
+.i0
+.DT
+.PP
+.SH "PANES"
+A pane is useful whenever some subset of the pixels of a window must be
+processed. A notable example is the case of convolutions where the input
+data must be valid over a larger range than the output.
+In addition, panes save the trouble of bringing data in from the frame
+buffer again if attention is to be shifted within a window but confined to
+a narrow region.
+.sp
+The structure element macros for panes are PaneWidth (pp), PaneHeight (pp)
+and PaneData (pp) and are similar to those of windows.
+The subroutines are as follows.
+.TP
+OpenPane (wp, dx, dy, xlen, ylen)
+Opens a new pane with the given origin and dimensions and attaches it to
+the given window.
+A pane's origin is relative to the origin of its parent window (and
+therefore, also to an image and/or vport).
+Obviously, a pane's dimensions cannot exceed those of the parent window.
+.TP
+CheckPane (pp)
+Checks the quality of the given pane and the parent window as well.
+.TP
+SetPane (pp, dx, dy, xlen, ylen)
+Attributes the pane with the given position and dimensions.
+.TP
+MovePane (pp, ddx, ddy)
+Moves the (relative) origin of the pane by the given increments.
+.TP
+ShrinkPane (wp, radius)
+This routine is specifically designed for setting up convolutions.
+A pane is allocated whose relative origin in the given window is offset by
+.I
+radius
+pixels in both the horizontal and vertical dimensions,
+and whose size is smaller than the window by
+.I
+2*radius
+pixels.
+Hence, a boundary of
+.I
+radius
+pixels
+is left around the pane from which edge data may be pulled.
+For example, when convolving with a 3 by 3 mask, the radius will be 1.
+The new pane is attached to the window and a pointer to it is returned.
+.TP
+ClosePane (pp)
+Closes the pane, detaching it from the parent window.
+.i0
+.DT
+.PP
+.SH "INTERACTIVE ROUTINES"
+.TP
+TrackVport (vp, shade)
+Tracks a vport using the keypad on the Zenith Z-19 terminal.
+If the vport is linked to a window on entry to the routine, it will be unlinked
+during the tracking process. Before the routine returns, it will attempt to
+reestablish the link.
+TrackVport() begins in rigid movement mode, so the cursor movement keys on the
+keypad will cause the vport to shift origin without changing size.
+The movement increment begins at one pixel and may be toggled between one and
+eight. During tracking, a line of information is maintained on the terminal
+screen showing the vport origin and dimensions.
+The full set of commands is given below.
+.in +.5
+.nf
+	<left>, <right>, <up> and <down> do the obvious. In rigid mode
+	    the vport moves rigidly in the desired direction an amount
+	    specified by the increment variable. In sizing mode, the
+	    sides of the vport are individually moved in or out.
+
+	'.'	(dot) toggles in/out mode.
+	'0'	toggles tracking/sizing mode.
+	'?'	prints some help.
+	'f'	sets the vport size to full screen.
+	HOME	toggles the movement increment.
+	ENTER	(or <CR>) exits the command loop.
+.fi
+.in -.5
+.TP
+TrackCursor (cp, shade)
+Tracks a cursor using the keypad. The commands used are the cursor movement
+characters, HOME to toggle the movement increment and ENTER or RETURN to exit.
+.i0
+.DT
+.PP
+.SH "COMMUNICATING DATA TO AND FROM THE HOST"
+.TP
+SendWindow (wp, filename, verbose, how)
+Sends the window over either the serial line or the ethernet
+to the host and puts it in a file with the given name.
+The
+.I
+filename
+argument is a pointer to a character string.
+The
+.I
+verbose
+argument is a flag, which, if set,
+causes the routine to non-destructively print information about how much data
+remains to be sent.
+.I
+How
+is either SLINE or ENET (defined in traps68.h).
+If the serial line is used, the routine invokes a program called
+.I
+getimage
+on the host, which can be found in /usr/popeye/bin.
+Anyone using the routine should make sure that the search path for executable
+programs includes this directory.
+The host is assumed to be a Unix machine.
+.sp
+The file that appears on the host machine will begin with a header structure
+IMAGE_HDR defined in image68.h. The remainder of the file is the window data.
+.TP
+GetWindow (filename)
+Gets an image file from the host over the EtherNet and puts it in a window.
+Returns a pointer to the window or NULL if the transfer failed or the header
+data was wrong. Note that images shipped from the host
+.I
+must
+begin with an IMAGE_HDR structure.
+.TP
+SendRow (row, filename, how)
+.br
+.ns
+.TP
+SendCol (col, filename, how)
+These routines send rows and columns to the host by reading in the
+given row or column and invoking SendWindow().
+.i0
+.DT
+.PP
+.SH "ODD UTILITIES"
+There are two odd utilities used mostly by the library routines but which
+may be of some use to end users.
+.TP
+CheckRect (x0, y0, xlen, ylen, xmin, ymin, xmax, ymax)
+Checks to see if the rectangle defined by the first four parameters lies
+within or on the area defined by the last four parameters.
+The two sets of parameters are passed differently to facilitate internal
+checks within the library.
+.TP
+CheckPtr (p)
+Performs null, odd and memory existence checks on the given pointer,
+which can be of any type.
+.i0
+.DT
+.PP
+.SH "DIAGNOSTICS"
+The popeye library adheres to the philosophy that low level routines
+should not print error messages, but should return state information
+that the user may ignore if he or she so desires.
+In addition, an error variable called
+.I
+popeye_err
+is maintained, and may be checked by the user to find out more about
+what went wrong during an unsuccessful call.
+A call such as SetWindow(), for example, may have eight or ten things which
+can go wrong, and simply returning FALSE is not enough of a diagnostic.
+Two routines are provided which print the value of the error variable.
+.TP
+PopeyeError (fmt, arg1, . . .)
+Hands all the passed arguments to printf() and then prints
+.I
+popeye_err = "<some string>".
+.TP
+PopeyeExit (status, fmt, arg1, . . .)
+Prints exactly the same information as PopeyeError() and then
+calls exit() with the given status.
+.i0
+.DT
+.PP
+The table of possible values of the error variable can be found in
+the header file
+.I
+popeye.h.
+.sp
+There are also some routines available for dumping object structures in human
+readable format. They are DumpWindow(wp), DumpVport(vp), DumpPane(pp) and
+DumpCursor(cp).
+.SH "PROGRAMMING EXAMPLES"
+Assuming the total screen size is 512 square,
+the following program example moves the upper left hand quarter of the screen
+to the lower right hand quarter.
+Note that the vport does not have to be closed explicitly at the end of the
+program since it is both attached to the window and excluded.
+.sp
+.in +.5i
+.nf
+/* Popeye library programming example */
+
+#include <popeye.h>
+
+main ()
+{
+    WINDOW *wp;
+    VPORT *vp;
+
+    InitPopeye ();
+
+    if ( (wp = OpenWindow (256, 256)) == NULL )
+	PopeyeExit (1, "Can't open a window; ");
+
+    if ( (vp = GetVport (wp, 0, 0, FALSE)) == NULL )
+    {
+	CloseWindow (wp);
+	PopeyeExit (1, "Can't open a vport; ");
+    }
+
+    GrabView (0);
+    LoadWindow (wp, vp);
+    MoveWindow (wp, 256, 256);
+    ShowWindow (wp);
+    ExcludeVport (vp);
+    CloseWindow (wp);
+
+    QuitPopeye ();
+    exit (0);
+}
+.fi
+.in -.5i
+.sp
+The second example shows how to write lookup table installation routines.
+.sp
+.in +.5i
+.nf
+/* Lookup table programming example */
+
+#include <popeye.h>
+
+main ()
+{
+    . . .
+    extern int colortab ();
+    . . .
+    InstallTable (colortab, 1, 6);
+    . . .
+}
+
+/* Psuedo-color overlay lookup table */
+/* To be evaluated only on the interval [1-6]. */
+/* Colors: 1 - red, 2 - green, 3 - blue, 4 - yellow, 5 - magenta, 6 - cyan. */
+
+colortab (i, c)
+    int		i;
+    COLOR	c;
+{
+    switch (c)
+    {
+	case RED:
+	    return ( (i == 1 || i == 4 || i == 5) ? 255 : 0 );
+	case GREEN:
+	    return ( (i == 2 || i == 4 || i == 6) ? 255 : 0 );
+	case BLUE:
+	    return ( (i == 3 || i == 5 || i == 6) ? 255 : 0 );
+    }
+}
+.fi
+.in -.5i
+.SH "BUGS"
+The error variable is not reset when routines return successfully.
+Hence, any call to an error routine will cause the message arising from
+the last error to be printed. If no error at all has occurred, the error
+variable could be anything.
+.sp
+The pixel transfer routines (GetRow et al) do not check for zero lengths.
+.SH "FILES"
+/usr/popeye/include/popeye.h		Abstract data type definitions
+.br
+/usr/popeye/lib/libpopeye.a		Binary library file
+.br
+/usr/popeye/src/libpopeye/*		Source code for the library
+.br
+/usr/popeye/man/man3/libpopeye.3	This manual entry
+.SH "SEE ALSO"
+popeyekrn(1)		Description of the popeye system monitor
+.SH "HISTORY"
+.TP
+16-Oct-83  John Schlag (jfs) at Carnegie-Mellon University
+Updated for the new conan hardware and incorporated suggestions
+from Bracho and Foster.
+.TP
+02-Aug-83  John Schlag (jfs) at Carnegie-Mellon University
+Created.

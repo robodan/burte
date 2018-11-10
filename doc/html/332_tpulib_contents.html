@@ -1,0 +1,64 @@
+<TITLE>TPULIB Function list</TITLE>
+<H2>Documentation on the TPU library</H2> <P>
+
+<I>Authors:	 Dan Spitzley and Parag Batavia</I> <BR>
+Date:		 1-27-93 <P>
+
+<H3>
+TPU Initialization functions:</H3> <P>
+
+	These functions set up the individual TPU channels to perform one of
+5 functions and are generally called at the beginning of the users 
+initialization routine. The functions available are:
+<UL>
+
+<LI> 	Discrete Input/Output (DIO):  			tpu_dio()
+<LI> 	Pulse Width Modulation (PWM): 			tpu_pwm()
+<LI> 	Synchronized Pulse Width Modulation (SPWM):	tpu_spwm()
+<LI> 	Input Transition Counter (ITC):			tpu_itc()
+<LI> 	Period/Pulse Width Accumulator (PPWA):		tpu_ppwa()
+</UL>
+ <P>
+	To use the functions in raw (burte-less) mode, you must link
+in librawtpu.a. An example Makefile which uses the tpu libraries and
+is set up for 332 compiling in general can be found in
+/home/mensa/handsys/332new/src/tpulib/
+ <P>
+
+<H3>
+TPU Support Functions:</H3> <P>
+
+	These functions are ancillary to the Initialization functions, and 
+allow the user to dynamically change the operational parameters of the TPU
+functions. They can be called at any time in the user's program. The functions 
+available are:
+<UL>
+
+
+<LI> 	DIO Support Functions: 	 <BR>
+DIO_set_match_rate(int channel, int rate) <BR>
+				DIO_read_req(int channel) <BR>
+				DIO_read_channel(int channel) <BR>
+				DIO_force_high(int channel) <BR>
+				DIO_force_low(int channel)  <P>
+
+<LI> 	PWM Support Functions: <BR>	PWM_update_channel(int channel, int pwmhi) <BR>
+				PWM_update_pwmper(int channel, int pwmper) <P>
+
+<LI> 	ITC Support Functions:  <BR> ITC_set_max_cnt(int maxcnt) <P>
+
+<LI> 	SPWM Support Functions:	 <BR>SPWM_set_hightime(int channel, int spwmhi) <BR>
+				SPWM_set_period(int channel, int spwmper) <BR>
+				SPWM_set_ref_parms(int channel, short ref1,
+						   short ref2) <BR>
+				SPWM_set_delay(int channel, int delay) <P>
+
+<LI> 	PPWA Support Functions: <BR>	PPWA_set_accum_rate(int channel, int rate) <BR>
+				PPWA_set_max_cnt(int channel, int maxcnt) <BR>
+				PPWA_get_pulse(int channel)  <P>
+	
+<LI> 	General I/O Functions: <BR>	inp(short address)	(defined as a macro) <BR>
+				inb(short address)	(defined as a macro) <BR>
+				outp(short address, int value) <BR>
+				outb(short address, short value) <P>
+</UL>

@@ -1,0 +1,15 @@
+V2.12   1-March-95	Andrew H. Fagg
+
+
+Known Bugs and Unsupported Routines
+
+- The scheduler gets confused when a process uses
+set_schedule_interval() and next_interval() to schedule itself to run
+at regular intervals and some other process suspend()'s it.
+
+
+Remaining Shell Commands to Port (they exist but don't try them!).
+talk
+tbaud
+hbaud
+!

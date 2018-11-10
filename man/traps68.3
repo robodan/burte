@@ -1,0 +1,150 @@
+.TH TRAPS68 3 "7 Jul 1983"
+.CM 3
+.SH "NAME"
+traps68 \- Trap manipulation routines with popeyekrn.
+.SH "SYNOPSIS"
+.nf
+#include <traps68.h>
+.sp
+FUNCTION *setTrap (trap_no, handler)
+	int trap_no;
+	FUNCTION *handler;
+.sp
+trap (trap_no, trap_action, arg1, arg2, ...)
+	int trap_no;
+	int trap_action;
+	int arg1, arg2, ... ;
+.fi
+.SH "DESCRIPTION"
+These routines give the user access to the trap mechanism of
+the MC68000.
+.sp
+The user first calls setTrap () to tell the
+system that he is planning to use trap
+.I
+trap_no
+and that the function
+.I
+handler ()
+is to be executed when such trap is called. setTrap returns the
+old function associated with the trap.
+There are three pre-defined functions: T_DEFAULT which is the
+function executed when a trap is invoked and hasn't been
+initialized
+(it basically informs the console that this has
+happened so the user may use T_DEFAULT as a "reset" function);
+T_IGNORE which inhibits the console message, thus completely
+ignoring the trap; and T_ERROR which
+is the return function when something goes
+wrong during the execution of setTrap.
+At a later time, maybe due to errors discovered in a process
+or for interprocess communication (possibly with the external
+world), the trap is invoked by means of a trap () call.
+.sp
+Since the MC68000 has a limited number of traps (16) and some
+of them are used by the system (0 to LASTKERNELTRAP), the user is given
+the facility of specifying
+.I
+actions
+within traps.
+The user may also invoke the trap with a number
+of arguments.
+The user's routine (handler) will be called in the following
+way:
+.I
+handler (trap_action, arg1_addr)
+Note that the routine receives the 
+.I
+address
+of the first argument, it then must pull the arguments by
+incrementing such address.
+For the 68000, unless the user is passing a float, double or
+structure, the arguments
+go on the stack as four byte quantities. Therefore
+it is sufficient to say:
+.sp
+.nf
+		handler (action, arg1_addr)
+			\fBint\fR  action;
+			\fBint\fR  *arg1_addr;
+		{
+			\fBint\fR arg1, arg2;
+
+			\fBswitch\fR (action)
+			{
+			    \fBcase\fR INIT:
+				.
+				.
+				arg1 = *arg1_addr++;
+				arg2 = *arg1_addr;
+				.
+				.
+			    \fBbreak\fR
+			    .
+			    .
+			}
+		}
+.fi
+.sp
+The user should be careful to
+insure that enough arguments are pushed when trap () is
+invoked or he may damage the user's stack. He must obviously insure
+to pull the appropriate argument types.
+.sp
+trap () returns whatever the trapped routine does, including doubles or
+structures. It will itself trap to the kernel if it finds an error (like a
+.I
+trap_no
+out of range).
+.sp
+Note that the trap facilities are needed for writing device handlers since
+all I/O is mapped to supervisor mode. For this reason, traps (LASTKERNELTRAP
++ 1) to (FIRSTUSERTRAP \- 1) are
+mapped in such a way that the trapped routine runs under supervisor privilege
+mode. Consult with the maintainers if you need one of those traps
+since some may be already used in your system (see traps68(7)).
+Also, look
+at popeyekrn(1) because most debugging facilities are only available in user
+mode. Routines trapped via traps FIRSTUSERTRAP to 15
+are guaranteed to run under user privilege mode. It is important to note
+that the routine \fBmust\fR be declared \fItrapped\fR if it is to be
+executed via traps FIRSTUSERTRAP to 15 (i.e. in user mode). For details see
+trapped(5).
+.SH "FILES"
+/usr/p68/include/traps68.h
+.SH "SEE ALSO"
+.B
+MC68000
+.I
+16-Bit Microprocessor User's Manual
+(3rd.
+Edition) 1982.
+Published by Motorola Semiconductor, Inc.
+.sp
+traps68(5)	Detail information about kernel traps.
+.br
+traps68(7)	Traps issued system-wide.
+.br
+trapped(5)	Declaration for trapped routines to run in user mode.
+.br
+popeyekrn(1)	Manual entry for popeyekrn.
+.SH HISTORY
+.TP
+  7-Jul-83  Rafael Bracho (rxb) at Carnegie-Mellon University
+Manual entry touched to remove some inconsistencies. Reference
+to traps68(7) added.
+
+.TP
+  7-Mar-83  Rafael Bracho (rxb) at Carnegie-Mellon University
+LASTKERNELTRAP and FIRSTUSERTRAP added as specifications on
+traps68.h
+
+.TP
+  3-Mar-83  Rafael Bracho (rxb) at Carnegie-Mellon University
+Released for V2.1 of POP/i KRN. The way popeyekrn handles traps
+was revised so floats, doubles and structures are allowed as
+arguments.
+
+.TP
+13-Nov-82  Rafael Bracho (rxb) at Carnegie-Mellon University
+Created.

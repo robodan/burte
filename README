@@ -1,0 +1,21 @@
+				BURTE
+                 Basic Universal Real Time Executive
+
+BURTE V2.12 is a mini-kernel for the MC68332.  It was originally
+written for the 68000 by Daniel A. Christian, and ported to the 332 by
+Andrew H. Fagg (ahfagg@robotics.usc.edu).
+
+
+This package comes with:
+	BURTE V2.12 - kernel + libraries
+	tpulib - a library for interfacing to the 332's Time Processor
+Unit, written by Parag Batavia and Dan Spitzley.
+
+
+Comments, questions, bug reports, and bug fixes are welcome (email to
+ahfagg@robotics.usc.edu), but whether I will be able to respond in a
+reasonable amount of time remains to be seen.
+
+
+
+

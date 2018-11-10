@@ -1,0 +1,89 @@
+				LIBBURTE
+
+	Libburte is the library of useful commands that work with the
+BURTE kernel.
+
+Commands:
+
+Conversions:
+atof (s)	float	string to float (double?)
+atoi (s)	int	string to int
+atox (s)	int	hexidecimal string to int
+	char *s;
+
+Memory Operations:
+swab			byte swap
+blt (dest, src, cnt)	fast block tranfer
+bm (src, dest, cnt)	fast block move (different from blt???)
+bs (start, cnt)		fast byte swap
+clear (start, cnt)	fast zero memory
+
+Output Functions:
+fprintf, printf, sprintf	standard unix style printf
+fqprintf, qprintf, sqprinf	printf without floating point
+fputi (i, fl)		print int
+fputx (i, fl)		print hex
+fputsx (i, s, fl)	print s byte hex (zero filled: 2s digits)
+fputc (c, fl)		print character
+fputs (s, fl)		print NULL terminated string
+ioctl
+flush (fl)		flush output buffer. macro
+
+Input Functions:
+getc (fl) => char	get a character from a file.  macro
+fgetc (fl) => char	function form of getc
+getchar() => char	macro = getc (stdin)
+fgets (buff, sz, fin, fout) => int (string size)
+			get a string with echo and editing
+gets (buff, sz)	=> int	macro = fgets (buff, sz, stdin, stdout)
+getbool
+getdouble
+gethex
+getint
+getline (prmt,def,ans) => char*
+			Prompts for a line with default and returns in ans.
+getstab
+getstr
+
+Input Argument Parsing Functions (similar to libcs)
+chrarg
+boolarg
+doublearg
+hexarg
+intarg
+nxtarg
+stabarg
+strarg
+
+Miscalaneous Functions:
+path			parse path and filename
+prstab
+qsort			quick sort
+quit			print message then exit
+regex
+stablk
+trap (n, action, args..)	call a system trap
+crypt
+
+Memory allocation
+malloc, realloc, free	standard unix. macro ROM calls
+
+
+String Manipulation:
+strcat
+strcmp
+strcpy (s1, s2)		copy s2 to s1.  s1 must be big enough.
+strncat
+strncmp
+strncpy
+strrev (s)		reverse string
+strlen (s)		string length
+skipto (s,cs)		skip to first character in charset, cs
+skipover (s,cs)		skip characters  in charset, cs
+index (s, c)		find first occurance of c in string
+rindex (s, c)		find last occurance of c in string
+stlmatch (big, short)	partial match big string with short
+
+Usefule Variables:
+wall_clock		incremented every 1ms
+wallclock		incremented every 1/8ms

@@ -1,0 +1,9 @@
+
+		   Diferences between Unix and REX
+
+Everywhere:	Newlines are not turned into cr-nl.
+	fputs does  turn \n into \r\n.  Many output routines
+	use fputs.
+
+puts:	Puts is purely a macro of fputs (s, stdout).  It does not
+	append a CR-NL to the string as in Unix.

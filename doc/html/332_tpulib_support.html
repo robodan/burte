@@ -1,0 +1,102 @@
+<TITLE>TPULIB Support Functions</TITLE>
+<H2>TPULIB Support Functions</H2> <P>
+
+<H3>Support Functions</H3> <P>
+
+<H4>DIO Support functions:</H4>
+<PRE>
+
+void DIO_set_match_rate(int channel, int rate)
+
+	This sets the match rate of the DIO pin, so that it is updated at
+regular intervals. This should be used with TCR1, as when TCR2 is used, it
+is not cleared to 0 at initilization, so the first sample isn't after
+"rate" clock pulses. TCR1 is cleared, however. The rate is an int, which
+determines after how many TCR1/2 clock pulses the pin should be sampled.
+
+short DIO_read_channel(int channel)
+		
+	This function returns either a 0 or 1, based on the value on 
+channel. If used in update at HSR11 mode, DIO_read_req() should be called 
+first. 
+
+void DIO_read_req(int channel)
+
+	This function issues a request to read the status of the specified
+channel. It should only be used if the channel was originally set up to 
+update when a HSR11 is issued.
+
+void DIO_force_high(int channel)
+
+	This function forces a DIO to a logic '1'.
+
+void DIO_force_low(int channel)
+
+	This function forces a DIO to a logic '0'.
+</PRE>
+
+<H4>ITC Support functions:</H4>
+<PRE>
+
+void ITC_set_max_cnt(int channel, int maxcnt)
+
+	This function is called to set the number of transitions that the
+ITC should gather before generating an interrupt. If the interrupts are 
+disabled, calling this function has no effect. 
+
+
+</PRE>
+
+<H4>PWM Support functions:</H4>
+<PRE>
+
+void PWM_update_pwmper(int channel, int pwmper)
+
+	This function is called to set the period, or frequency, of the 
+PWM. pwmper is measured in terms of system clock cycles, and the lowest 
+recommended value is 32. The maximum usable value is one which satisfies the
+equation pwmper-pwmhi <= 0x8000.
+
+void PWM_update_channel(int channel, int pwmhi)
+
+	This function sets the high time of a PWM output. Valid values are 
+between 0 and > pwmper. 0 sets the channel to logic '0', while a value 
+higher than the period sets it to logic '1'. Any value inbetween is taken
+as a proportion of the pwmper time. Therefore a pwmhi = 1/2 of pwmper will
+deliver a 50% duty cycle. 
+
+</PRE>
+
+<H4>PPWA Support functions:</H4>
+<PRE>
+void PPWA_set_accum_rate(int channel, int value)
+
+	This function sets the accum rate for a PPWA input. The formula for 
+calculating the input is that the rate = 1/(rate * resolution of TCR used). 
+When using a futaba transmitter as input, 0x20 is a good value to use.
+
+void PPWA_set_max_cnt(int channel, int cnt)
+
+	This function sets the number of pulses over which the period or high
+time is accumulated. For a futaba transmitter, 1 is used. 
+
+unsigned PPWA_get_pulse(int channel)
+
+	This function returns the pulse width or period length of the PWM
+input signal. Generally, when used with the futaba servos, values between
+600 and 1000 are returned.
+
+</PRE>
+
+<H4>SPWM Support functions:</H4>
+<PRE>
+
+void SPWM_set_hightime(channel, high)
+
+void SPWM_set_period(channel, high)
+
+void SPWM_set_ref_parms(channel, addr1, addr2)
+
+void SPWM_set_delay(channel, delay)
+
+</PRE>

@@ -1,0 +1,40 @@
+V1.01	First version of BURTE in ROM
+
+
+V1.10	10-April-88	Dan Christian
+	Fixed bug in set baud rate.
+	Speeded up serial drivers.
+	Added a ready process queue to speed up the scheduler.  Burte
+in RAM can now handle 9600 baud transparent mode without sending XOFF.
+However, it isn't quite fast enough when in ROM.
+	Programmers button is on both interupts 4 and 6.  The timer
+should be moved to level 6.  The programmers button can be on level 4
+without many problems.  It won't be able to interupt device drivers
+though.
+
+
+V1.11	9-May-88	Dan Christian
+	Changed download.c to allow S1-S9 records.
+	Changed the dload command to allow the entire command line to
+be specified.
+
+V2.00   5-May-92	Andrew H. Fagg
+	Ported to MC68332 processor.
+	Added msleep(), sleep(), set_schedule_interval(),
+next_interval(), super_inp(), and super_outp() system calls. 
+
+V2.10   3-March-93	Andrew H. Fagg
+	Added supervisor() system call.
+	Set wallclock to operate at a 122 usec period.
+	Added the statistics and wait shell commands.
+
+V2.11			Andrew H. Fagg
+	Added super_outb(), and super_inb() calls.
+
+V2.12
+	19-February-95	Andrew H. Fagg
+	Created the shellexpB version.  This version supports expanded
+memory for Cypress 128Kx32 bits, located in the range 0x40000 -
+0xc0000.  See csB.c for configuration details.
+	Fixed wall_clock_count ROM bug.
+

@@ -1,0 +1,100 @@
+.TH DLFORMAT 5 7/16/82
+.CM 3
+.SH "NAME"
+dlformat \- The Motorola S0-S9 download format and associated programs.
+.SH "DESCRIPTION"
+The S0-S9 downloading format is a means of sending binary data over serial
+i/o lines.
+Several programs in the 68000 software system understand and
+use the format.
+A complete description of the format can be found in
+Appendix B of the VersaBug manual.
+The following table is extracted from
+that document for convenience.
+.nf
+.sp
+.B
+Record Types
+.fi
+.TP
+S0
+Header record
+.TP
+S1
+Data record with 16 bit address
+.TP
+S2
+Data record with 24 bit address
+.TP
+S3
+Data record with 32 bit address
+.TP
+S4
+(unused but reserved)
+.TP
+S5
+Transmitted data record count record
+.TP
+S6
+(unused but reserved)
+.TP
+S7
+End of file/32 bit execution address record
+.TP
+S8
+End of file/24 bit execution address record
+.TP
+S9
+End of file/16 bit execution address record
+.i0
+.DT
+.PP
+.sp
+Three pieces of software cooperate to produce, send and receive .dl files.
+.sp
+Down68(1) is the component of the 68000 C compiler that produces
+a .dl file from a .b file.
+The name of the file is inserted into the
+S0 record at the start of the file.
+The S1 and S2 records carry the
+data by translating each byte of binary data into two hexadecimal characters.
+The S8 or S9 record at the end carries the starting execution address
+of the program.
+.sp
+Dl(1) takes a list of filenames, looks for them and sends the files over a
+serial line. The only format modification made by dl is the exclusion of
+ending S8 records from all but the last file. If errors are encountered, dl
+sends error messages as text in S0 records.
+.sp
+Finally, the
+.I
+download()
+subroutine in the 68000 monitor eprom receives the transmitted records and
+loads the binary data into memory. When an S0 record is encountered, every
+byte following the 'S0' characters is printed verbatim. This allows dl(1)
+to communicate with the user even while downloading is taking place. For
+example, the record
+.sp
+S0file.dl
+.sp
+will tell the monitor that file.dl is about to be shipped. Some monitors will
+print the message "file.dl:" on the terminal to let you know that a new file
+is coming. If dl(1) can't find one of the files you asked for, it might print
+.sp
+S0dl: Can't find file zorko.dl
+.sp
+so the monitor can pass the error message on to you.
+.SH "SEE ALSO"
+dl(1)
+.br
+down68(1)
+.br
+kern68(1)
+.SH "BUGS"
+Some monitors are different than others.
+All, however, will successfully
+download .dl files.
+.SH "HISTORY"
+.TP
+16-Jul-82  John Schlag (jfs) at Carnegie-Mellon University
+Created.

@@ -1,0 +1,413 @@
+.TH TRAPS68 5 "7 Jul 1983"
+.CM 3
+.SH "NAME"
+traps68 \- Using traps with popeyekrn.
+.SH "SYNOPSIS"
+#include <traps68.h>
+.sp
+cc68 -vy ...
+.SH "DESCRIPTION"
+.B
+Popeyekrn
+has a mechanism for issuing 
+.I
+trap
+instructions.
+This is necessary since all the I/O devices
+are mapped to the Supervisor state, as is popeyekrn
+itself.
+There are two classes of traps: System traps and User defined traps.
+Either one of the two will be invoked by a call of the following form:
+.I
+trap (trap_no, trap_action, arg1, arg2, ...)
+where trap_no is the trap number, trap_action
+is the action to be performed by such trap with the (variable) number
+of arguments to be passed to the trap routine following trap_action.
+For details about passing arguments, see traps68(3).
+.sp
+If the trap is User defined, there must have been a previous call to
+.I
+setTrap (trap_no, handler)
+which relates trap number \fBtrap_no\fR with the function \fBhandler ()\fR.
+Again, details
+exist in traps68(3).
+.SH "SYSTEM TRAPS"
+.I
+Popeyekrn
+uses three system traps: I/O services (IOTrap), which
+provides entry for the functions of the on-board I/O devices;
+kernel services (KTrap), which provides entry for all the general
+services available in
+.I
+popeyekrn;
+and the return trap (RTrap), which is used by the system
+to return to supervisor mode at the completion of the user program.
+.br
+Popeyekrn reserves traps 0 through 3 for advanced I/O services, file
+handling and process intercommunication, to keep compatibility with some
+software products from Motorola.
+.sp
+The following trap actions are defined for the IOTrap in
+.B
+POP/i KRN V2.4
+(Note that there is typically a library routine that performs the same action
+as the following traps, thus hiding the trap call for the user.)
+.TP
+OutC1
+This action will output a character to the terminal.
+The argument is
+.B
+char,
+the character to be sent.
+.sp
+.br
+.ns
+.TP
+OutC2
+This action will output a character to the host.
+The argument is
+.B
+char,
+the character to be sent.
+.sp
+.br
+.ns
+.TP
+OutS1
+This action will output a string to the terminal.
+The argument is
+.B
+str,
+a pointer to the string to be sent out.
+.sp
+.br
+.ns
+.TP
+OutS2
+This action will output a string to the host.
+The argument is
+.B
+str,
+a pointer to the string to be sent out.
+.sp
+.br
+.ns
+.TP
+InC1
+This action will input a character from the terminal.
+No arguments are needed and the character is returned.
+.sp
+.br
+.ns
+.TP
+InC2
+This action will input a character from the host.
+No arguments are needed and the character is returned.
+.sp
+.br
+.ns
+.TP
+InS1
+This action will input a string from the terminal. A single argument is
+needed, \fBbuffer\fR, the address of a character array where the string will
+be stored (there should be space for 128 characters).  The trap will return
+its argument. If the argument is NULL, the routine will use an internal
+buffer (the user should be careful to not overwrite it by calling this
+action twice in a row!) and return the address of it. If ^D is typed as the
+first character, NULL will be returned instead of the valid address (unless
+the ^D is quoted via ^V).
+
+In this action, ^H is recognized as the backspace character, ^W is the
+erase word character, ^U is the erase line, ^T twiddles the
+previous two characters and ^V quotes the next character.
+If the number of characters exceeds 128, it will refuse to accept anything
+but an erasing character (^H, ^U or ^W) followed by
+a terminating character (will sound the bell if any
+other character is entered). ^R retypes the buffer contents at any
+time. Input terminates when either escape,
+line-feed or carriage-return are entered. The terminating character
+is kept in the buffer.
+.sp
+.br
+.ns
+.TP
+InS2
+This action will input a string from the host. The argument \fBbuffer\fR is
+the address of an optional character array where to put the string (allow
+space for at least 128 characters).  If the argument is NULL, an internal
+buffer is used.  It returns a pointer to the buffer where the string was
+stored. No other action is implied. 
+.sp
+.br
+.ns
+.TP
+IsC1
+This action will test whether the terminal has a character
+in its input queue or not. No argument is needed. It will return
+the character if found, or EOF if no character is encountered.
+Note that a subsequent trap to InC1 will receive the same character.
+.sp
+.br
+.ns
+.TP
+IsC2
+This action will test whether the host has a character
+in its input queue or not. No argument is needed. It will return
+the character if found, or EOF if no character is encountered.
+Note that a subsequent trap to InC2 will receive the same character.
+.sp
+.br
+.ns
+.TP
+Flsh1
+This action will flush the output queue of the terminal. No 
+arguments are needed.
+.sp
+.br
+.ns
+.TP
+Flsh2
+This action will flush the output queue of the host. No 
+arguments are needed.
+.sp
+.br
+.ns
+.TP
+Baud2
+This action will set the host baudrate. The argument is an
+integer specifying one of: 50, 75, 110, 134, 150, 300, 600, 1200,
+1800, 2000, 2400, 3600, 4800, 7200, 9600 or 19200. It returns
+TRUE if successful and FALSE otherwise (in which case the host's
+baudrate will remain unchanged).
+.i0
+.DT
+.PP
+.sp
+The following trap actions are defined for the KTrap in
+.B
+POP/i KRN V2.4:
+.TP
+SetTrap
+This action defines a trap handler routine. The arguments are
+.B
+trap_no,
+the trap number (between (LASTKERNELTRAP + 1) and 15); and
+.B
+handler,
+the FUNCTION pointer to the routine that should be trapped. It returns
+the old FUNCTION pointer associated with this trap.
+.sp
+.br
+.ns
+.TP
+IsMem
+This action is used to test whether there is memory at a specified location or
+not. The routine runs under supervisor-privilege mode and thus it may be used
+to test for I/O devices as well. The argument is
+.B
+addr,
+the location's address (may be odd since a single byte is tested). The
+routine will return 0 if there is no memory, 0xFFFF0000 if there is
+only read memory; 0x0000FFFF if there is only write memory; and 
+0xFFFFFFFF if there is read/write memory.
+.sp
+.br
+.ns
+.TP
+Download
+This action retrieves a file from the host machine. It invokes \fBmdl68\fR
+to perform the download. The argument is \fBfilename\fR, a string with the name
+of the VERSABUG formatted file. The trap will return the execution address
+of the code just downloaded, or zero if the download failed.
+.sp
+.br
+.ns
+.TP
+Alloc
+This action tries to allocate some memory from the dynamically-managed heap.
+The argument is
+.B
+nbytes,
+the number of bytes needed. It returns a pointer to core with at least that
+much space. The address is guaranteed to be alligned to accept any data
+type. It will return NULL if it can't find that much space on the heap.
+.sp
+.br
+.ns
+.TP
+Realloc
+This action attempts to redefined the size of a previously allocated memory.
+The arguments are:
+.B
+ptr,
+a pointer to core previously returned by alloc; and
+.B
+newsize,
+the new size in bytes.
+If the new space is bigger, it guarantees that all the previous data will be
+found in the new space. If smaller, the first
+.I
+newsize
+bytes will be there. It will return a pointer to the new space or NULL if
+not enough space is found. In either case, the old pointer should not be
+used anymore.
+.sp
+.br
+.ns
+.TP
+Free
+This action frees core previously obtained by either the Alloc or the
+Realloc actions. The argument needed is
+.B
+ptr,
+a pointer to the core to be freed. It returns TRUE if successful, FALSE
+otherwise.
+.sp
+.br
+.ns
+.TP
+BindKey
+This action binds a function to a single keystroke. The arguments needed are
+.B
+key,
+the ascii code of the character to be bound; and
+.B
+action,
+the FUNCTION pointer to the routine to be excecuted. It will return TRUE if
+the binding is successful, FALSE otherwise. It is an error to rebind
+previously-bound keys.
+.sp
+.br
+.ns
+.TP
+UnbindKey
+This action unbinds a previously-bound key. The argument is
+.B
+key,
+the ascii code of the bound key. It will return TRUE if successful, FALSE
+otherwise. Note that it is possible to unbind delete, ^Z, ^S, ^Q and
+^O. The monitor will no longer execute the default actions for these keys.
+It is not possible to unbind ^\\, however.
+.sp
+.br
+.ns
+.TP
+AbsAlarm
+This action will set an alarm to go off at a particular time and execute a
+user routine. The arguments are: \fBtime\fR, the time when the routine
+should be executed (an \fIabsolute\fR number (32 bits) of seconds since 1
+January 1970 at 0:00 Hrs, Greenwich time); \fBaction\fR, a pointer to the
+routine to be executed; and \fBfrequency\fR the number of seconds that
+should pass between executions of such action (if zero, the action will be
+executed only once). The routine must be declared bound (see bound(5)).
+.sp
+.br
+.ns
+.TP
+RelAlarm
+This action is almost identical to \fIAbsAlarm\fR above except that the
+\fBtime\fR parameter is taken \fIrelative\fR to the current time of day.
+.sp
+.br
+.ns
+.TP
+UnsetAlarm
+This action is used to reset an alarm. If the alarm was specified with
+frequency of zero (to be executed only once,) it is automatically reset when
+it is executed. Alarms that are set to go off at regular intervals will
+continue to do so until this trap action is called upon them.  Takes one
+argument, \fBaction\fR, the routine that was bound to the alarm.
+.sp
+.br
+.ns
+.TP
+Time
+This action takes no arguments and returns the time of day (a 32 bit number)
+in seconds that have passed since 1 January 1970 at 0:00 Hrs, Greenwich time.
+.sp
+.br
+.ns
+.TP
+LongJmp
+This action is used by the library routine \fIlongjmp\fR (see setjmp(3)).
+The user shouldn't call it directly. A previous call to \fIsetjmp\fR is
+needed and the longjmp call should be done at a deeper level (in the
+program) than that setjmp. More details are found in the manual entry
+setjmp(3). This action fixes the supervisor stack, etc. and prepares
+everything for the library routine that does the actual jump. It is included
+here for completeness.
+.sp
+.br
+.ns
+.TP
+Abort
+This action takes no arguments and executes a warm reset (the kind normally
+associated with pressing delete). No argument is needed.
+.sp
+.br
+.ns
+.TP
+IllegalTrap
+This action is called by the trap manipulation package to return to the
+kernel when an illegal trap is called. The argument is
+.B
+trap_no,
+the (illegal) trap number. The routine does a warm reset after informing the
+console of such abnormal condition.
+.i0
+.DT
+.PP
+.SH "USER TRAPS"
+The user may define his own traps via the
+.I
+setTrap
+routine described in traps68(3).
+When a trap () call is made with
+his trap number, the system will execute the user's trap routine
+\-see traps68(3) for more details.
+.sp
+It is good practice to reset a user trap via a setTrap call
+with T_DEFAULT as parameter.
+.SH "FILES"
+/usr/p68/include/traps68.h
+.SH "SEE ALSO"
+.B
+MC68000
+.I
+16-Bit Microprocessor User's Manual
+(3rd.
+Edition) 1982.
+Published by Motorola Semiconductor, Inc.
+.sp
+.nf
+traps68(3)	Manual entry for setTrap () and trap ().
+traps68(7)	List of system-wide traps.
+popeyekrn(1)	Manual entry for the kernel.
+.SH "DIAGNOSTICS"
+If a trap is called for which the default action is taken,
+a diagnostic message will be printed on the console.
+.sp
+If an illegal trap number is used in a trap call a diagnostic is also
+printed on the console and execution returns to popeyekrn.
+.SH HISTORY
+.TP
+  7-Jul-83  Rafael Bracho (rxb) at Carnegie-Mellon University
+A number of new traps were defined (to conform with V2.4 of
+POP/i KRN). Note that the InS1 and InS2 actions now accept an
+optional buffer where to put the strings.
+
+.TP
+  7-Mar-83  Rafael Bracho (rxb) at Carnegie-Mellon University
+LASTKERNELTRAP added as a specification in traps68.h. The Kernel
+service SetVec was deleted since users can't access those
+vectors anyway. For supervisors, a trapped routine could
+initialize the vectors. Kernel service IsMem added.
+
+.TP
+  3-Mar-83  Rafael Bracho (rxb) at Carnegie-Mellon University
+POP/i KRN V2.1 is released. With it, all the trap manipulation
+package is installed. Several kernel and I/O services were added.
+
+.TP
+13-Nov-82  Rafael Bracho (rxb) at Carnegie-Mellon University
+Created.

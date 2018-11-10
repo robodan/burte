@@ -1,0 +1,1490 @@
+#NO_APP
+gcc_compiled.:
+.text
+	.even
+.globl _tpu_dio
+_tpu_dio:
+	link a6,#0
+	moveml #0x3f20,sp@-
+	movel a6@(8),d4
+	movel a6@(12),d5
+	movel a6@(24),d6
+	movel a6@(16),d0
+	addl a6@(20),d0
+	addql #3,d0
+	movel d4,d1
+	asll #4,d1
+	movel #16776960,a0
+	movew d0,a0@(d1:l)
+	tstl d4
+	jlt L2
+	moveq #3,d7
+	cmpl d4,d7
+	jlt L2
+	movel #16776722,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d3
+	movel d4,d0
+	asll #2,d0
+	moveq #15,d2
+	asll d0,d2
+	moveq #0,d1
+	movew d2,d1
+	notl d1
+	andl d1,d3
+	moveq #8,d1
+	asll d0,d1
+	orl d1,d3
+	movel d3,sp@-
+	movel #16776722,sp@-
+	jra L22
+L2:
+	moveq #3,d7
+	cmpl d4,d7
+	jge L4
+	moveq #7,d7
+	cmpl d4,d7
+	jlt L4
+	movel #16776720,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d3
+	movel d4,d0
+	subql #4,d0
+	asll #2,d0
+	moveq #15,d2
+	asll d0,d2
+	moveq #0,d1
+	movew d2,d1
+	notl d1
+	andl d1,d3
+	moveq #8,d1
+	asll d0,d1
+	orl d1,d3
+	movel d3,sp@-
+	movel #16776720,sp@-
+	jra L22
+L4:
+	moveq #7,d7
+	cmpl d4,d7
+	jge L6
+	moveq #11,d7
+	cmpl d4,d7
+	jlt L6
+	movel #16776718,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d3
+	movel d4,d0
+	subql #8,d0
+	asll #2,d0
+	moveq #15,d2
+	asll d0,d2
+	moveq #0,d1
+	movew d2,d1
+	notl d1
+	andl d1,d3
+	moveq #8,d1
+	asll d0,d1
+	orl d1,d3
+	movel d3,sp@-
+	movel #16776718,sp@-
+	jra L22
+L6:
+	moveq #11,d7
+	cmpl d4,d7
+	jge L20
+	moveq #15,d7
+	cmpl d4,d7
+	jlt L20
+	movel #16776716,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d3
+	moveq #-12,d0
+	addl d4,d0
+	asll #2,d0
+	moveq #15,d2
+	asll d0,d2
+	moveq #0,d1
+	movew d2,d1
+	notl d1
+	andl d1,d3
+	moveq #8,d1
+	asll d0,d1
+	orl d1,d3
+	movel d3,sp@-
+	movel #16776716,sp@-
+L22:
+	pea 18:w
+	jbsr a2@
+	addw #20,sp
+	moveq #7,d7
+	cmpl d4,d7
+	jge L10
+	moveq #15,d7
+	cmpl d4,d7
+	jlt L10
+	movel #16776732,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d3
+	movel d4,d0
+	subql #8,d0
+	asll #1,d0
+	asll d0,d5
+	movel d5,d0
+	orl d0,d3
+	movel d3,sp@-
+	movel #16776732,sp@-
+	jra L23
+L10:
+	tstl d4
+	jlt L20
+	moveq #7,d7
+	cmpl d4,d7
+	jlt L20
+	movel #16776734,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d3
+	movel d4,d0
+	asll #1,d0
+	asll d0,d5
+	movel d5,d0
+	orl d0,d3
+	movel d3,sp@-
+	movel #16776734,sp@-
+L23:
+	pea 18:w
+	jbsr a2@
+	addw #20,sp
+	moveq #7,d7
+	cmpl d4,d7
+	jge L14
+	moveq #15,d7
+	cmpl d4,d7
+	jlt L14
+	movel #16776724,a0
+	movew a0@,d0
+	moveq #0,d3
+	movew d0,d3
+	movel d4,d0
+	subql #8,d0
+	jra L24
+L14:
+	tstl d4
+	jlt L15
+	moveq #7,d7
+	cmpl d4,d7
+	jlt L15
+	movel #16776726,a0
+	movew a0@,d0
+	moveq #0,d3
+	movew d0,d3
+	movel d4,d0
+L24:
+	asll #1,d0
+	asll d0,d6
+	movel d6,d0
+	orl d0,d3
+	movew d3,d0
+	movew d0,a0@
+L15:
+	tstl d4
+	jlt L17
+	moveq #15,d7
+	cmpl d4,d7
+	jlt L17
+	movel #16776714,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d3
+	movel a6@(28),d0
+	asll d4,d0
+	orl d0,d3
+	movel d3,sp@-
+	movel #16776714,sp@-
+	pea 18:w
+	jbsr a2@
+L17:
+	moveq #7,d7
+	cmpl d4,d7
+	jge L18
+	moveq #15,d7
+	cmpl d4,d7
+	jlt L18
+	movel #16776728,a0
+	movew a0@,d0
+	moveq #0,d3
+	movew d0,d3
+	movel d4,d0
+	subql #8,d0
+	jra L25
+L18:
+	tstl d4
+	jlt L20
+	moveq #7,d7
+	cmpl d4,d7
+	jlt L20
+	movel #16776730,a0
+	movew a0@,d0
+	moveq #0,d3
+	movew d0,d3
+	movel d4,d0
+L25:
+	asll #1,d0
+	moveq #3,d1
+	asll d0,d1
+	orl d1,d3
+	movew d3,d0
+	movew d0,a0@
+	jra L19
+L20:
+	moveq #0,d0
+	jra L1
+L19:
+	moveq #1,d0
+L1:
+	moveml a6@(-28),#0x4fc
+	unlk a6
+	rts
+	.even
+.globl _tpu_pwm
+_tpu_pwm:
+	link a6,#0
+	moveml #0x3e20,sp@-
+	movel a6@(8),d4
+	movel a6@(12),d5
+	moveq #16,d0
+	addl a6@(20),d0
+	addl a6@(16),d0
+	movel d4,d1
+	asll #4,d1
+	movel #16776960,a0
+	movew d0,a0@(d1:l)
+	tstl d4
+	jlt L27
+	moveq #3,d6
+	cmpl d4,d6
+	jlt L27
+	movel #16776722,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d3
+	movel d4,d0
+	asll #2,d0
+	moveq #15,d2
+	asll d0,d2
+	moveq #0,d1
+	movew d2,d1
+	notl d1
+	andl d1,d3
+	moveq #9,d1
+	asll d0,d1
+	orl d1,d3
+	movel d3,sp@-
+	movel #16776722,sp@-
+	jra L44
+L27:
+	moveq #3,d6
+	cmpl d4,d6
+	jge L29
+	moveq #7,d6
+	cmpl d4,d6
+	jlt L29
+	movel #16776720,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d3
+	movel d4,d0
+	subql #4,d0
+	asll #2,d0
+	moveq #15,d2
+	asll d0,d2
+	moveq #0,d1
+	movew d2,d1
+	notl d1
+	andl d1,d3
+	moveq #9,d1
+	asll d0,d1
+	orl d1,d3
+	movel d3,sp@-
+	movel #16776720,sp@-
+	jra L44
+L29:
+	moveq #7,d6
+	cmpl d4,d6
+	jge L31
+	moveq #11,d6
+	cmpl d4,d6
+	jlt L31
+	movel #16776718,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d3
+	movel d4,d0
+	subql #8,d0
+	asll #2,d0
+	moveq #15,d2
+	asll d0,d2
+	moveq #0,d1
+	movew d2,d1
+	notl d1
+	andl d1,d3
+	moveq #9,d1
+	asll d0,d1
+	orl d1,d3
+	movel d3,sp@-
+	movel #16776718,sp@-
+	jra L44
+L31:
+	moveq #11,d6
+	cmpl d4,d6
+	jge L42
+	moveq #15,d6
+	cmpl d4,d6
+	jlt L42
+	movel #16776716,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d3
+	moveq #-12,d0
+	addl d4,d0
+	asll #2,d0
+	moveq #15,d2
+	asll d0,d2
+	moveq #0,d1
+	movew d2,d1
+	notl d1
+	andl d1,d3
+	moveq #9,d1
+	asll d0,d1
+	orl d1,d3
+	movel d3,sp@-
+	movel #16776716,sp@-
+L44:
+	pea 18:w
+	jbsr a2@
+	addw #20,sp
+	moveq #7,d6
+	cmpl d4,d6
+	jge L35
+	moveq #15,d6
+	cmpl d4,d6
+	jlt L35
+	movel #16776732,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d3
+	movel d4,d0
+	subql #8,d0
+	asll #1,d0
+	asll d0,d5
+	movel d5,d0
+	orl d0,d3
+	movel d3,sp@-
+	movel #16776732,sp@-
+	jra L45
+L35:
+	tstl d4
+	jlt L42
+	moveq #7,d6
+	cmpl d4,d6
+	jlt L42
+	movel #16776734,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d3
+	movel d4,d0
+	asll #1,d0
+	asll d0,d5
+	movel d5,d0
+	orl d0,d3
+	movel d3,sp@-
+	movel #16776734,sp@-
+L45:
+	pea 18:w
+	jbsr a2@
+	addw #20,sp
+	tstl d4
+	jlt L39
+	moveq #15,d6
+	cmpl d4,d6
+	jlt L39
+	movel #16776714,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d3
+	movel a6@(24),d0
+	asll d4,d0
+	orl d0,d3
+	movel d3,sp@-
+	movel #16776714,sp@-
+	pea 18:w
+	jbsr a2@
+L39:
+	moveq #7,d6
+	cmpl d4,d6
+	jge L40
+	moveq #15,d6
+	cmpl d4,d6
+	jlt L40
+	movel #16776728,a0
+	movew a0@,d0
+	moveq #0,d3
+	movew d0,d3
+	movel d4,d0
+	subql #8,d0
+	jra L46
+L40:
+	tstl d4
+	jlt L42
+	moveq #7,d6
+	cmpl d4,d6
+	jlt L42
+	movel #16776730,a0
+	movew a0@,d0
+	moveq #0,d3
+	movew d0,d3
+	movel d4,d0
+L46:
+	asll #1,d0
+	moveq #2,d1
+	asll d0,d1
+	orl d1,d3
+	movew d3,d0
+	movew d0,a0@
+	jra L41
+L42:
+	moveq #0,d0
+	jra L26
+L41:
+	moveq #1,d0
+L26:
+	moveml a6@(-24),#0x47c
+	unlk a6
+	rts
+	.even
+.globl _tpu_itc
+_tpu_itc:
+	link a6,#0
+	moveml #0x3f20,sp@-
+	movel a6@(8),d4
+	movel a6@(12),d5
+	movel a6@(24),d6
+	movel a6@(16),d0
+	addl a6@(20),d0
+	addql #3,d0
+	movel d4,d1
+	asll #4,d1
+	movel #16776960,a0
+	movew d0,a0@(d1:l)
+	tstl d4
+	jlt L48
+	moveq #3,d7
+	cmpl d4,d7
+	jlt L48
+	movel #16776722,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d3
+	movel d4,d0
+	asll #2,d0
+	moveq #15,d2
+	asll d0,d2
+	moveq #0,d1
+	movew d2,d1
+	notl d1
+	andl d1,d3
+	moveq #10,d1
+	asll d0,d1
+	orl d1,d3
+	movel d3,sp@-
+	movel #16776722,sp@-
+	jra L69
+L48:
+	moveq #3,d7
+	cmpl d4,d7
+	jge L50
+	moveq #7,d7
+	cmpl d4,d7
+	jlt L50
+	movel #16776720,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d3
+	movel d4,d0
+	subql #4,d0
+	asll #2,d0
+	moveq #15,d2
+	asll d0,d2
+	moveq #0,d1
+	movew d2,d1
+	notl d1
+	andl d1,d3
+	moveq #10,d1
+	asll d0,d1
+	orl d1,d3
+	movel d3,sp@-
+	movel #16776720,sp@-
+	jra L69
+L50:
+	moveq #7,d7
+	cmpl d4,d7
+	jge L52
+	moveq #11,d7
+	cmpl d4,d7
+	jlt L52
+	movel #16776718,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d3
+	movel d4,d0
+	subql #8,d0
+	asll #2,d0
+	moveq #15,d2
+	asll d0,d2
+	moveq #0,d1
+	movew d2,d1
+	notl d1
+	andl d1,d3
+	moveq #10,d1
+	asll d0,d1
+	orl d1,d3
+	movel d3,sp@-
+	movel #16776718,sp@-
+	jra L69
+L52:
+	moveq #11,d7
+	cmpl d4,d7
+	jge L67
+	moveq #15,d7
+	cmpl d4,d7
+	jlt L67
+	movel #16776716,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d3
+	moveq #-12,d0
+	addl d4,d0
+	asll #2,d0
+	moveq #15,d2
+	asll d0,d2
+	moveq #0,d1
+	movew d2,d1
+	notl d1
+	andl d1,d3
+	moveq #10,d1
+	asll d0,d1
+	orl d1,d3
+	movel d3,sp@-
+	movel #16776716,sp@-
+L69:
+	pea 18:w
+	jbsr a2@
+	addw #20,sp
+	moveq #7,d7
+	cmpl d4,d7
+	jge L56
+	moveq #15,d7
+	cmpl d4,d7
+	jlt L56
+	movel #16776732,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d3
+	movel d4,d0
+	subql #8,d0
+	asll #1,d0
+	asll d0,d5
+	movel d5,d0
+	orl d0,d3
+	movel d3,sp@-
+	movel #16776732,sp@-
+	jra L70
+L56:
+	tstl d4
+	jlt L67
+	moveq #7,d7
+	cmpl d4,d7
+	jlt L67
+	movel #16776734,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d3
+	movel d4,d0
+	asll #1,d0
+	asll d0,d5
+	movel d5,d0
+	orl d0,d3
+	movel d3,sp@-
+	movel #16776734,sp@-
+L70:
+	pea 18:w
+	jbsr a2@
+	addw #20,sp
+	moveq #7,d7
+	cmpl d4,d7
+	jge L60
+	moveq #15,d7
+	cmpl d4,d7
+	jlt L60
+	movel #16776724,a0
+	movew a0@,d0
+	moveq #0,d3
+	movew d0,d3
+	movel d4,d0
+	subql #8,d0
+	jra L71
+L60:
+	tstl d4
+	jlt L67
+	moveq #7,d7
+	cmpl d4,d7
+	jlt L67
+	movel #16776726,a0
+	movew a0@,d0
+	moveq #0,d3
+	movew d0,d3
+	movel d4,d0
+L71:
+	asll #1,d0
+	asll d0,d6
+	movel d6,d0
+	orl d0,d3
+	movew d3,d0
+	movew d0,a0@
+	tstl d4
+	jlt L64
+	moveq #15,d7
+	cmpl d4,d7
+	jlt L64
+	movel #16776714,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d3
+	movel a6@(28),d0
+	asll d4,d0
+	orl d0,d3
+	movel d3,sp@-
+	movel #16776714,sp@-
+	pea 18:w
+	jbsr a2@
+L64:
+	moveq #7,d7
+	cmpl d4,d7
+	jge L65
+	moveq #15,d7
+	cmpl d4,d7
+	jlt L65
+	movel #16776728,a0
+	movel d4,d0
+	subql #8,d0
+	asll #1,d0
+	moveq #1,d1
+	asll d0,d1
+	movew d1,a0@
+	jra L66
+L65:
+	tstl d4
+	jlt L67
+	moveq #7,d7
+	cmpl d4,d7
+	jlt L67
+	movel #16776730,a0
+	movel d4,d1
+	asll #1,d1
+	moveq #1,d0
+	asll d1,d0
+	movew d0,a0@
+	jra L66
+L67:
+	moveq #0,d0
+	jra L47
+L66:
+	moveq #1,d0
+L47:
+	moveml a6@(-28),#0x4fc
+	unlk a6
+	rts
+	.even
+.globl _tpu_ppwa
+_tpu_ppwa:
+	link a6,#0
+	moveml #0x3e20,sp@-
+	movel a6@(8),d3
+	movel a6@(12),d4
+	movel a6@(24),d5
+	movel a6@(16),d0
+	addl a6@(20),d0
+	addql #3,d0
+	movel d3,d1
+	asll #4,d1
+	movel #16776960,a0
+	movew d0,a0@(d1:l)
+	tstl d3
+	jlt L73
+	moveq #3,d6
+	cmpl d3,d6
+	jlt L73
+	movel #16776722,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d2
+	movel d3,d1
+	asll #2,d1
+	moveq #15,d0
+	asll d1,d0
+	moveq #0,d1
+	movew d0,d1
+	notl d1
+	andl d1,d2
+	orl d0,d2
+	movel d2,sp@-
+	movel #16776722,sp@-
+	jra L94
+L73:
+	moveq #3,d6
+	cmpl d3,d6
+	jge L75
+	moveq #7,d6
+	cmpl d3,d6
+	jlt L75
+	movel #16776720,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d2
+	movel d3,d1
+	subql #4,d1
+	asll #2,d1
+	moveq #15,d0
+	asll d1,d0
+	moveq #0,d1
+	movew d0,d1
+	notl d1
+	andl d1,d2
+	orl d0,d2
+	movel d2,sp@-
+	movel #16776720,sp@-
+	jra L94
+L75:
+	moveq #7,d6
+	cmpl d3,d6
+	jge L77
+	moveq #11,d6
+	cmpl d3,d6
+	jlt L77
+	movel #16776718,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d2
+	movel d3,d1
+	subql #8,d1
+	asll #2,d1
+	moveq #15,d0
+	asll d1,d0
+	moveq #0,d1
+	movew d0,d1
+	notl d1
+	andl d1,d2
+	orl d0,d2
+	movel d2,sp@-
+	movel #16776718,sp@-
+	jra L94
+L77:
+	moveq #11,d6
+	cmpl d3,d6
+	jge L92
+	moveq #15,d6
+	cmpl d3,d6
+	jlt L92
+	movel #16776716,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d2
+	moveq #-12,d1
+	addl d3,d1
+	asll #2,d1
+	moveq #15,d0
+	asll d1,d0
+	moveq #0,d1
+	movew d0,d1
+	notl d1
+	andl d1,d2
+	orl d0,d2
+	movel d2,sp@-
+	movel #16776716,sp@-
+L94:
+	pea 18:w
+	jbsr a2@
+	addw #20,sp
+	moveq #7,d6
+	cmpl d3,d6
+	jge L81
+	moveq #15,d6
+	cmpl d3,d6
+	jlt L81
+	movel #16776732,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d2
+	movel d3,d0
+	subql #8,d0
+	asll #1,d0
+	asll d0,d4
+	movel d4,d0
+	orl d0,d2
+	movel d2,sp@-
+	movel #16776732,sp@-
+	jra L95
+L81:
+	tstl d3
+	jlt L92
+	moveq #7,d6
+	cmpl d3,d6
+	jlt L92
+	movel #16776734,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d2
+	movel d3,d0
+	asll #1,d0
+	asll d0,d4
+	movel d4,d0
+	orl d0,d2
+	movel d2,sp@-
+	movel #16776734,sp@-
+L95:
+	pea 18:w
+	jbsr a2@
+	addw #20,sp
+	moveq #7,d6
+	cmpl d3,d6
+	jge L85
+	moveq #15,d6
+	cmpl d3,d6
+	jlt L85
+	movel #16776724,a0
+	movew a0@,d0
+	moveq #0,d2
+	movew d0,d2
+	movel d3,d0
+	subql #8,d0
+	jra L96
+L85:
+	tstl d3
+	jlt L92
+	moveq #7,d6
+	cmpl d3,d6
+	jlt L92
+	movel #16776726,a0
+	movew a0@,d0
+	moveq #0,d2
+	movew d0,d2
+	movel d3,d0
+L96:
+	asll #1,d0
+	asll d0,d5
+	movel d5,d0
+	orl d0,d2
+	movew d2,d0
+	movew d0,a0@
+	tstl d3
+	jlt L89
+	moveq #15,d6
+	cmpl d3,d6
+	jlt L89
+	movel #16776714,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d2
+	movel a6@(28),d0
+	asll d3,d0
+	orl d0,d2
+	movel d2,sp@-
+	movel #16776714,sp@-
+	pea 18:w
+	jbsr a2@
+L89:
+	moveq #7,d6
+	cmpl d3,d6
+	jge L90
+	moveq #15,d6
+	cmpl d3,d6
+	jlt L90
+	movel #16776728,a0
+	movel d3,d0
+	subql #8,d0
+	asll #1,d0
+	moveq #2,d1
+	asll d0,d1
+	movew d1,a0@
+	jra L91
+L90:
+	tstl d3
+	jlt L92
+	moveq #7,d6
+	cmpl d3,d6
+	jlt L92
+	movel #16776730,a0
+	movel d3,d1
+	asll #1,d1
+	moveq #2,d0
+	asll d1,d0
+	movew d0,a0@
+	jra L91
+L92:
+	moveq #0,d0
+	jra L72
+L91:
+	moveq #1,d0
+L72:
+	moveml a6@(-24),#0x47c
+	unlk a6
+	rts
+	.even
+.globl _tpu_spwm
+_tpu_spwm:
+	link a6,#0
+	moveml #0x3f20,sp@-
+	movel a6@(8),d4
+	movel a6@(12),d5
+	movel a6@(24),d6
+	moveq #16,d0
+	addl a6@(20),d0
+	addl a6@(16),d0
+	movel d4,d1
+	asll #4,d1
+	movel #16776960,a0
+	movew d0,a0@(d1:l)
+	tstl d4
+	jlt L98
+	moveq #3,d7
+	cmpl d4,d7
+	jlt L98
+	movel #16776722,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d3
+	movel d4,d0
+	asll #2,d0
+	moveq #15,d2
+	asll d0,d2
+	moveq #0,d1
+	movew d2,d1
+	notl d1
+	andl d1,d3
+	moveq #7,d1
+	asll d0,d1
+	orl d1,d3
+	movel d3,sp@-
+	movel #16776722,sp@-
+	jra L119
+L98:
+	moveq #3,d7
+	cmpl d4,d7
+	jge L100
+	moveq #7,d7
+	cmpl d4,d7
+	jlt L100
+	movel #16776720,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d3
+	movel d4,d0
+	subql #4,d0
+	asll #2,d0
+	moveq #15,d2
+	asll d0,d2
+	moveq #0,d1
+	movew d2,d1
+	notl d1
+	andl d1,d3
+	moveq #7,d1
+	asll d0,d1
+	orl d1,d3
+	movel d3,sp@-
+	movel #16776720,sp@-
+	jra L119
+L100:
+	moveq #7,d7
+	cmpl d4,d7
+	jge L102
+	moveq #11,d7
+	cmpl d4,d7
+	jlt L102
+	movel #16776718,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d3
+	movel d4,d0
+	subql #8,d0
+	asll #2,d0
+	moveq #15,d2
+	asll d0,d2
+	moveq #0,d1
+	movew d2,d1
+	notl d1
+	andl d1,d3
+	moveq #7,d1
+	asll d0,d1
+	orl d1,d3
+	movel d3,sp@-
+	movel #16776718,sp@-
+	jra L119
+L102:
+	moveq #11,d7
+	cmpl d4,d7
+	jge L117
+	moveq #15,d7
+	cmpl d4,d7
+	jlt L117
+	movel #16776716,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d3
+	moveq #-12,d0
+	addl d4,d0
+	asll #2,d0
+	moveq #15,d2
+	asll d0,d2
+	moveq #0,d1
+	movew d2,d1
+	notl d1
+	andl d1,d3
+	moveq #7,d1
+	asll d0,d1
+	orl d1,d3
+	movel d3,sp@-
+	movel #16776716,sp@-
+L119:
+	pea 18:w
+	jbsr a2@
+	addw #20,sp
+	moveq #7,d7
+	cmpl d4,d7
+	jge L106
+	moveq #15,d7
+	cmpl d4,d7
+	jlt L106
+	movel #16776732,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d3
+	movel d4,d0
+	subql #8,d0
+	asll #1,d0
+	asll d0,d5
+	movel d5,d0
+	orl d0,d3
+	movel d3,sp@-
+	movel #16776732,sp@-
+	jra L120
+L106:
+	tstl d4
+	jlt L117
+	moveq #7,d7
+	cmpl d4,d7
+	jlt L117
+	movel #16776734,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d3
+	movel d4,d0
+	asll #1,d0
+	asll d0,d5
+	movel d5,d0
+	orl d0,d3
+	movel d3,sp@-
+	movel #16776734,sp@-
+L120:
+	pea 18:w
+	jbsr a2@
+	addw #20,sp
+	moveq #7,d7
+	cmpl d4,d7
+	jge L110
+	moveq #15,d7
+	cmpl d4,d7
+	jlt L110
+	movel #16776724,a0
+	movew a0@,d0
+	moveq #0,d3
+	movew d0,d3
+	movel d4,d0
+	subql #8,d0
+	jra L121
+L110:
+	tstl d4
+	jlt L117
+	moveq #7,d7
+	cmpl d4,d7
+	jlt L117
+	movel #16776726,a0
+	movew a0@,d0
+	moveq #0,d3
+	movew d0,d3
+	movel d4,d0
+L121:
+	asll #1,d0
+	asll d0,d6
+	movel d6,d0
+	orl d0,d3
+	movew d3,d0
+	movew d0,a0@
+	tstl d4
+	jlt L114
+	moveq #15,d7
+	cmpl d4,d7
+	jlt L114
+	movel #16776714,sp@-
+	pea 19:w
+	lea _system,a2
+	jbsr a2@
+	movel d0,d3
+	movel a6@(28),d0
+	asll d4,d0
+	orl d0,d3
+	movel d3,sp@-
+	movel #16776714,sp@-
+	pea 18:w
+	jbsr a2@
+L114:
+	moveq #7,d7
+	cmpl d4,d7
+	jge L115
+	moveq #15,d7
+	cmpl d4,d7
+	jlt L115
+	movel #16776728,a0
+	movel d4,d0
+	subql #8,d0
+	asll #1,d0
+	moveq #2,d1
+	asll d0,d1
+	movew d1,a0@
+	jra L116
+L115:
+	tstl d4
+	jlt L117
+	moveq #7,d7
+	cmpl d4,d7
+	jlt L117
+	movel #16776730,a0
+	movel d4,d1
+	asll #1,d1
+	moveq #2,d0
+	asll d1,d0
+	movew d0,a0@
+	jra L116
+L117:
+	moveq #0,d0
+	jra L97
+L116:
+	moveq #1,d0
+L97:
+	moveml a6@(-28),#0x4fc
+	unlk a6
+	rts
+	.even
+.globl _DIO_set_match_rate
+_DIO_set_match_rate:
+	link a6,#0
+	movel a6@(8),d0
+	asll #4,d0
+	movel #16776964,a0
+	movew a6@(14),d1
+	movew d1,a0@(d0:l)
+	unlk a6
+	rts
+	.even
+.globl _DIO_read_channel
+_DIO_read_channel:
+	link a6,#0
+	movel a6@(8),d0
+	asll #4,d0
+	movel #16776962,a0
+	movew a0@(d0:l),d0
+	moveq #15,d1
+	lsrw d1,d0
+	extl d0
+	unlk a6
+	rts
+	.even
+.globl _DIO_force_high
+_DIO_force_high:
+	link a6,#0
+	movel d2,sp@-
+	movel a6@(8),d0
+	moveq #7,d2
+	cmpl d0,d2
+	jge L125
+	movel #16776728,a0
+	subql #8,d0
+	asll #1,d0
+	moveq #1,d1
+	asll d0,d1
+	movew d1,a0@
+	jra L126
+L125:
+	movel #16776730,a0
+	movel d0,d1
+	asll #1,d1
+	moveq #1,d0
+	asll d1,d0
+	movew d0,a0@
+L126:
+	movel a6@(-4),d2
+	unlk a6
+	rts
+	.even
+.globl _DIO_force_low
+_DIO_force_low:
+	link a6,#0
+	movel d2,sp@-
+	movel a6@(8),d0
+	moveq #7,d2
+	cmpl d0,d2
+	jge L128
+	movel #16776728,a0
+	subql #8,d0
+	asll #1,d0
+	moveq #2,d1
+	asll d0,d1
+	movew d1,a0@
+	jra L129
+L128:
+	movel #16776730,a0
+	movel d0,d1
+	asll #1,d1
+	moveq #2,d0
+	asll d1,d0
+	movew d0,a0@
+L129:
+	movel a6@(-4),d2
+	unlk a6
+	rts
+	.even
+.globl _DIO_read_req
+_DIO_read_req:
+	link a6,#0
+	movel d2,sp@-
+	movel a6@(8),d0
+	moveq #7,d2
+	cmpl d0,d2
+	jge L131
+	movel #16776728,a0
+	subql #8,d0
+	asll #1,d0
+	moveq #3,d1
+	asll d0,d1
+	movew d1,a0@
+	jra L132
+L131:
+	movel #16776730,a0
+	movel d0,d1
+	asll #1,d1
+	moveq #3,d0
+	asll d1,d0
+	movew d0,a0@
+L132:
+	movel a6@(-4),d2
+	unlk a6
+	rts
+	.even
+.globl _ITC_set_max_cnt
+_ITC_set_max_cnt:
+	link a6,#0
+	movel a6@(8),d0
+	asll #4,d0
+	movel #16776964,a0
+	movew a6@(14),d1
+	movew d1,a0@(d0:l)
+	unlk a6
+	rts
+	.even
+.globl _PWM_update_channel
+_PWM_update_channel:
+	link a6,#0
+	moveml #0x3000,sp@-
+	movel a6@(8),d2
+	movew a6@(14),d0
+	movel d2,d1
+	asll #4,d1
+	movel #16776964,a0
+	movew d0,a0@(d1:l)
+	moveq #7,d3
+	cmpl d2,d3
+	jge L135
+	movel #16776728,a0
+	movel d2,d1
+	asll #1,d1
+	moveq #1,d0
+	asll d1,d0
+	movew d0,a0@
+	jra L136
+L135:
+	movel #16776730,a0
+	movel d2,d0
+	subql #8,d0
+	asll #1,d0
+	moveq #1,d1
+	asll d0,d1
+	movew d1,a0@
+L136:
+	moveml a6@(-8),#0xc
+	unlk a6
+	rts
+	.even
+.globl _PWM_update_pwmper
+_PWM_update_pwmper:
+	link a6,#0
+	moveml #0x3000,sp@-
+	movel a6@(8),d2
+	movel d2,d0
+	asll #4,d0
+	movel #16776966,a0
+	movew a6@(14),d1
+	movew d1,a0@(d0:l)
+	moveq #7,d3
+	cmpl d2,d3
+	jge L138
+	movel #16776728,a0
+	movel d2,d1
+	asll #1,d1
+	moveq #1,d0
+	asll d1,d0
+	movew d0,a0@
+	jra L139
+L138:
+	movel #16776730,a0
+	movel d2,d0
+	subql #8,d0
+	asll #1,d0
+	moveq #1,d1
+	asll d0,d1
+	movew d1,a0@
+L139:
+	moveml a6@(-8),#0xc
+	unlk a6
+	rts
+	.even
+.globl _SPWM_set_hightime
+_SPWM_set_hightime:
+	link a6,#0
+	movew a6@(14),d0
+	movel a6@(8),d1
+	asll #4,d1
+	movel #16776964,a0
+	movew d0,a0@(d1:l)
+	unlk a6
+	rts
+	.even
+.globl _SPWM_set_period
+_SPWM_set_period:
+	link a6,#0
+	movew a6@(14),d0
+	movel a6@(8),d1
+	asll #4,d1
+	movel #16776966,a0
+	movew d0,a0@(d1:l)
+	unlk a6
+	rts
+	.even
+.globl _SPWM_set_ref_parms
+_SPWM_set_ref_parms:
+	link a6,#0
+	movel a6@(8),d0
+	asll #4,d0
+	movel #16776968,a0
+	movew a6@(14),d1
+	aslw #8,d1
+	orw a6@(18),d1
+	movew d1,a0@(d0:l)
+	unlk a6
+	rts
+	.even
+.globl _SPWM_set_delay
+_SPWM_set_delay:
+	link a6,#0
+	movew a6@(14),d0
+	movel a6@(8),d1
+	asll #4,d1
+	movel #16776970,a0
+	movew d0,a0@(d1:l)
+	unlk a6
+	rts
+	.even
+.globl _PPWA_set_accum_rate
+_PPWA_set_accum_rate:
+	link a6,#0
+	movel a6@(8),d0
+	asll #4,d0
+	movel #16776968,a0
+	moveb a6@(15),d1
+	extw d1
+	aslw #8,d1
+	movew d1,a0@(d0:l)
+	unlk a6
+	rts
+	.even
+.globl _PPWA_set_max_cnt
+_PPWA_set_max_cnt:
+	link a6,#0
+	movel a6@(8),d0
+	asll #4,d0
+	movel #16776962,a0
+	moveb a6@(15),d1
+	extw d1
+	aslw #8,d1
+	movew d1,a0@(d0:l)
+	unlk a6
+	rts
+	.even
+.globl _PPWA_get_pulse
+_PPWA_get_pulse:
+	link a6,#0
+	movel a6@(8),d0
+	asll #4,d0
+	movel #16776970,a0
+	movew a0@(d0:l),d1
+	moveq #0,d0
+	movew d1,d0
+	unlk a6
+	rts

@@ -1,0 +1,227 @@
+<TITLE>TPULIB Function call examples</TITLE>
+<H2>Descriptions and Example Calls for Initialization Functions:</H2> <P>
+
+	Each initialization function requires a channel specification,
+a priority level, a Time base/directionality (TBS) value, and an
+interrupt status value.  Functions may also require a Pin Action
+Control (PAC) value, a Pin State Control (PSC) value, and/or a host
+sequence code. <P>
+<UL>
+
+<LI> 	channel: An integer from 0 to 15 associated with the desired pin for
+		 the function to perform on.  <BR>
+
+<LI> 	priority: Either HIGH, MEDIUM, or LOW as defined in the header file
+		  "tpulib.h". A HIGH priority guarantees 4 out of every 7 time 
+		  slots, at least 2 out of every 7 time slots for MEDIUM 
+		  priority, and at least 1 out of every 7 time slots for LOW 
+		  priority. <BR>
+
+<LI> 	int_status: Determines whether to enable or disable the function's
+		    ability to generate a CPU interrupt. Value is either 
+		    ENABLE or DISABLE as defined in the header file "tpulib.h". <BR>
+
+<LI> 	PSC: For functions which can be used as outputs, the value of the PSC
+	     can be used to force the pin to a certain state.  <BR>
+
+<LI> 	PAC: Specifies transition edge to detect on input channels. On output
+	     channels it specifies high or low logic level to output as a 
+	     result of a match. <BR>
+
+<LI> 	TBS: Designates a channel as input or output. Also specifies the time
+	     base (TCR1 and TCR2) for the input capture and output compare 
+	     functions on each channel. <BR>
+
+<LI> 	host sequence: Specifies the mode of operation to be used for the 
+	     function on a channel. <BR>
+
+</UL>
+<P>
+	Each of the required values must be clearly stated in the
+function call. The values which must be passed to each function and
+descriptions of the meanings of these values follow.
+ <P>
+
+<H4>tpu_dio(channel, priority, TBS, PAC, host_sequence, int_status);</H4> <P>
+
+	The tpu_dio() function initializes a channel to emulate a
+discrete input or output function. The parameter PIN_LEVEL in the TPU
+holds the 16 most recent pin states, 15 being the most recent and 0
+being the least.  The two modes of operation provide discrete input:
+transition mode and match mode.  The CPU can update PIN_LEVEL at any
+time. <P>
+<PRE>
+
+	TBS - There are 5 TBS options available: 
+		DIO_TCR1 	 - Capture TCR1, Match TCR1
+		DIO_TCR1_TCR2 	 - Capture TCR1, Match TCR2
+		DIO_TCR2_TCR1 	 - Capture TCR2, Match TCR1
+		DIO_TCR2 	 - Capture TCR2, Match TCR2
+		DIO_NOCHANGE_TBS - Do not change TBS
+
+	PAC - There are 5 PAC options available:
+		DIO_NOTRANS 	 - Do not detect transition
+		DIO_RISING 	 - Detect rising edge
+		DIO_FALLING 	 - Detect falling edge
+		DIO_EITHER 	 - Detect either edge
+		DIO_NOCHANGE_PAC - Do not change PAC
+
+	host_sequence - There are 3 host_sequence modes available:
+		DIO_TRANSMODE	 - Record Pin on Transition. Places pin sample
+				   in PIN_LEVEL in the TPU.
+		DIO_MATCHMODE	 - Record Pin at sample rate MATCH_RATE.
+		DIO_RECORD_HSR11 - Record Pin on Host Sequence Request 11.
+</PRE>
+
+ <P>
+Example calls: <P>
+
+	1. tpu_dio(0, HIGH, DIO_TCR1, DIO_NOTRANS, DIO_RECORD_HSR11, DISABLE); <P>
+
+	This call will set up TPU 0 as a DIO input. The value on the
+DIO pin will be read into the PIN_LEVEL register whenever the user
+asserts a HSR 11 by calling DIO_read_req(channel). The value, '0' or '1',
+can then be read by issuing a DIO_read_channel(channel).  <P>
+
+	2. tpu_dio(0, HIGH, DIO_NOCHANGE_TBS, DIO_NOCHANGE_PAC, DIO_TRANSMODE,
+		   DISABLE); <P>
+
+	This call will set up TPU 0 as DIO output. The value of TPU 0 can be
+changed by calling force_high(channel) to set it to '1', or force_low(channel)
+to set it to '0'.  <P>
+
+<H4>tpu_pwm(channel, priority, TBS, PSC, int_status);</H4>
+
+	The tpu_pwm() function initializes a channel to generate a
+pulse-width-modulated waveform where the period and/or high time can
+be changed at any time by the CPU. <P>
+<PRE>
+
+	TBS - There are 3 TBS options available:
+		PWM_TCR1 	 - Capture TCR1, Compare TCR1
+		PWM_TCR2 	 - Capture TCR2, Compare TCR2
+		PWM_NOCHANGE_TBS - Do not change TBS
+
+	PSC - There are 4 PSC options available:
+		PWM_FORCE_BY_LATCHES - Force pin as specifief by PAC latches
+		PWM_FORCE_HIGH	     - Force pin high
+		PWM_FORCE_LOW	     - Force pin low
+		PWM_NOFORCE	     - Do not force any state
+
+</PRE>
+
+Example call: <P>
+
+	1. tpu_pwm(3, MEDIUM, PWM_TCR1, PWM_NOFORCE, DISABLE); <P>
+
+	This call will assign channel 3 to output a PWM signal, which can be
+used to drive futaba servos. The period and the high time of the signal are
+set by PWM_update_pwmper(channel, per), and PWM_update_channel(channel, pwmhi),
+respectively. See the support section for more details.  <P>
+
+<H4>tpu_itc(channel, priority, TBS, PAC, host_sequence, int_status)</H4> <P>
+
+
+	The tpu_itc() function initializes a channel to perform an
+input capture on a specified transition and/or count the number of
+input capture events caused by input transitions. <P>
+<PRE>
+
+	TBS - There are 2 TBS options available:
+		ITC_TCR1 - Capture TCR1
+		ITC_TCR2 - Capture TCR2
+
+	PAC - There are 5 PAC options available:
+		ITC_NOTRANS 	 - Do not detect transition
+		ITC_RISING 	 - Detect rising edge
+		ITC_FALLING 	 - Detect falling edge
+		ITC_EITHER 	 - Detect either edge
+		ITC_NOCHANGE_PAC - Do not change PAC
+
+	host_sequence - There are 4 host_sequence options available:
+		ITC_NOLINK_SINGLE - No Link, Single Mode
+				    Performs transition count once
+		ITC_NOLINK_CONT   - No Link, Continuous Mode
+				    Performs transition count continuously
+		ITC_LINK_SINGLE   - Link, Single Mode
+		ITC_LINK_CONT     - Link, Continuous mode
+	
+		Note: Linking has not been implemented in the version.
+
+</PRE>
+ <P>
+Example call: <P>
+
+	1. tpu_itc(1, HIGH, ITC_TCR1, ITC_RISING, ITC_NOLINK_CONT, ENABLE); <P>
+
+	This call will set up TPU 1 as an interrupt transition counter. The
+TPU will generate an interrupt to the CPU on the rising edge of the input 
+signal. By setting the max_cnt parameter with ITC_set_max_cnt(channel, cnt),
+the TPU can be intstructed only to interrupt the CPU on every cnt occurence of
+the specified transition. See the support functions section for more details. <P>
+
+<H4>tpu_ppwa(channel, priority, TBS, PAC, host_sequence, int_status)</H4> <P>
+
+	The tpu_ppwa() function allows a TPU pin to measure the period
+and/or pulse width of an input signal. This can be used for
+pulse-width modulation input, such as from a futaba transmitter, or
+frequency measurement. <P>
+<PRE>
+
+	TBS - 5 options available:
+		PPWA_TCR1	- capture and match w/ TCR1
+		PPWA_TCR1_TCR2	- capture TCR1, match TCR2
+		PPWA_TCR2_TCR1 	- capture TCR2, match TCR1
+		PPWA_TCR2	- capture and match w/ TCR2
+		PPWA_NOCHANGE_TBS - do not change the current value of the TBS
+
+	PAC - 2 options available:
+		PPWA_RISING	- Accumulate high time of a signal (PWM)
+		PPWA_FALLING 	- Accumulate during entire period of a signal
+				  (frequency)
+
+	host_sequence - 2 options available:
+		PPWA_24_BIT_PER - 24 bit period accumulate
+		PPWA_24_BIT_PW	- 24 bit high time accumulate
+
+</PRE>
+ <P>
+Example call: <P>
+
+	1. tpu_ppwa(1, HIGH, PPWA_TCR1, PPWA_RISING, PPWA_24_BIT_PW, DIABLE); <P>
+
+	Calling tpu_ppwa with these parameters set up channel 1 to read the
+PWM input from a futaba PWM transmitter. After the initilization call, the
+accumulation rate and the number of periods to count must be set. The 
+accumulation rate is set by calling PPWA_set_accum_rate(channel, rate), and
+the number of pulses to count is set by calling PPWA_set_max_cnt(channel, cnt).
+See the support function section for more details.  <P>
+
+<H4>tpu_spwm(channel, priority, TBS, PSC, host_sequence, int_status)</H4> <P>
+
+	The tpu_spwm() function generates a pwm signal which is synchronized
+by channel linking to another spwm signal. This can be used to generate a 
+start waveform, followed by additional signals after a certain time, based on
+the beginning of the original waveform. <P>
+<PRE>
+
+	TBS - 3 options:
+		SPWM_TCR1	- capture and compare w/ TCR1
+		SPWM_TCR2 	- capture and compare w/ TCR2
+		SPWM_NOCHANGE_TBS - do not alter the current value of the TBS
+
+	PSC - 4 options:
+		SPWM_PAC	- forces the output based on the PAC latches
+		SPWM_FORCE_HIGH - forces the pin to a '1'
+		SPWM_FORCE_LOW  - forces the pin to a '0'
+		SPWM_NOFORCE    - leaves the pin in it's current state
+
+	host_sequence - 3 options available:
+		SPWM_MODE0 	- activates mode 0 - see TPU manual
+		SPWM_MODE1	- see TPU manual
+		SPWM_MODE2 	- see TPU manual
+
+</PRE>
+
+
+

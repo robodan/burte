@@ -1,0 +1,40 @@
+93.02.27
+	Changed wallclock from 977 usec period to 122 usec period.
+	set_schedule(), sleep() and msleep() were updated accordingly.
+	exec.c : added statistics collection to _top() routine.
+
+93.03.27
+	Added cpu utilization statistics collection.  The files
+updated include :
+		exec.c : _top() routine modified to collect statistics.
+		shell.c : statistics command implementation
+		start.c : initialization of data structures.
+		timer.h : set wallclock to a 122 usec period.
+		sys_vars.s : moved global vars to make room for added
+			burte code.
+	Removed tm_set(), tm_read(), and tm_scale().
+
+93.04.07
+	Released V1.12
+	New routines:
+		super_outb()
+		super_inb()
+	
+
+93.04.12
+	Added lock to qprintf buffer to avoid contention problems.
+	
+93.04.27  Andrew H. Fagg
+	Fixed bug in insert_runq() routine in BURTE, which was causing 
+		processes to suddenly disappear from the run queue.
+
+93.05.18  Andrew H. Fagg
+	Fixed bug in a_exec.s that caused a variable to be allocated
+		to ROM, rather than RAM (NXM_flag).
+
+93.11.05  Andrew H. Fagg
+	Fixed bug in burte.h: wallclock is now its own memory location,
+		instead of being referenced to wall_clock.  Added
+		reference to sys_vars.s
+
+

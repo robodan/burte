@@ -1,0 +1,95 @@
+<H2>68332 Compiling</H2>
+ <P>
+<I> Authors : Andrew H. Fagg and Parag Batavia. </I>
+
+
+<H4>1.  Compiling programs</H4>
+
+	Because the 68332 is (almost) a 68000-compatible processor, we
+are utilizing the gnu-C cross-compiler on the sparcs.  The libraries are
+adapted from a kernel called BURTE (Basic Universal Real Time Environment),
+which is also currently up and running on the 332.  <P>
+	The libraries and BURTE code can be found in ~handsys/332new/burte,
+while the compiler is located in /home/mensa/local/bin. /home/mensa/local/bin
+should be at the beginning of your path so that the cross compiler can be 
+used. The cross-compiler is automatically invoked whenever -target sun3 is
+used as the first command line option.  <P>
+	There are two ways to create new programs - direct mode, and BURTE
+mode. While there aren't many code differences, different makefiles are 
+required. Sample makefiles for both modes can be found in  
+<A HREF="/home/mensa/handsys/332new/src/sample/">~handsys/332new/src/sample</A>. Gcc is called to create the object files, and 
+gld is used to link the code to an executable. In non-BURTE mode, all object
+files start at location 0x3000, while is BURTE mode, they start at 0xA000.
+	All programs must include "userstart.o" as the first file to be linked.
+There are two versions - one for BURTE, and one w/out. The one for BURTE is
+automatically linked in w/ the sample Makefile. The non-BURTE version can 
+be found in ~handsys/332new/src/sample.  <P>
+	After linking, this "executable" file is then passed through a 
+program called dl68, which creates an S-record format file of the program.  
+It is this file that is downloaded to the 68332 board (the extension is .dl). <P>
+ <P>
+
+<H4>2.  Downloading and running programs w/out BURTE</H4> <P>
+
+	The 68332 can be connected to /dev/ttya and /dev/ttyb on mensa, and
+/dev/ttyb on kobra. With ~handsys/bin added to your path, you will have 
+access to cona/b and dlpa/b which allow you to connect to and download software
+to the '332. If the '332 is connected to /dev/ttya, then cona must be used,
+else conb must be used. The con program calls kermit up, and connects you to
+the 332DEBUG monitor on the BCC. The '332 then can be told to get ready to
+accept a program, and then dlp can be used to download it. The steps are as
+follows:  <P>
+<UL>
+<LI> 		1.  Type "con[a][b]", which will connect you to the 332.  
+			Hitting <return> a couple of times should yield a 
+			332Bug> prompt. If not, then hit the reset switch on 
+			the board.  At the prompt, type "lo<RETURN>", then
+			"<CTRL>\c" to escape out of the con program. <P>
+<LI> 		2.  At the unix prompt, type "dlpa[b] <prognam.dl>".  This 
+			program will print a series of dots, representing
+			each S-record that is sent.  Control will then
+			be returned to the unix shell. <P>
+<LI> 		3.  Type "con" again and hit <return> a few times to
+			get the 332Bug> prompt back.  It is possible
+			to verify the transfer by then repeating 
+			steps 2 - 4, except that "ve" is used instead
+			of "lo". This is not usually required.  <P>
+<LI> 		4.  The program may now be run by typing "g".  When
+			the program is complete, the user is returned
+			to the 332Bug> prompt. <P> <P>
+</UL>
+
+It is possible that a program will occasionally halt w/out returning to the
+332BUG prompt or providing any indication of why it failed. This is fairly
+rare now that the system has been tested and debugged, but it still sometimes
+happens. In order to track down such a problem, it is necessary for the 
+programmer to narrow down the bug by: <P>
+<UL>
+<LI> 	1.  Using "qprintf()" to best identify where the program stops
+		behaving as desired. <P>
+<LI> 	2.  Attempt to reduce the program down to a minimum set of conditions
+		that cause the bug (a 4-line program is easier to work
+		with in assembly than is a 100-line program).  This is
+		very important and may affect how quickly the bug gets
+		fixed. <P>
+<LI> 	3.  Send mail to ahfagg@pollux or parag@mensa with a pointer to 
+		the various programs and a description of the problem.   <P>
+</UL>
+
+
+<H4>3.  What is currently available. </H4><P>
+<UL>
+<LI> 	Math routines for integers. 
+<LI> 	low-level i/o routines (putchar, getchar, etc). 
+<LI> 	qprintf() and associated routines (much faster than printf, but
+		does not do floating point). 
+<LI> 	string handling routines (strlen, strcmp, etc).
+<LI> 	printf() is partially working, where floating point numbers are
+		not used.
+<LI> 	scanf() should work for integers and characters, but it hasn't
+		been tried. Use getint() instead to read integers. 
+<LI> 	High-level libraries for most TPU functions. 
+<LI> 	Limited support for floating point operations using a 68881 
+		co-processor. Send mail to monty@mensa for details. 
+</UL>
+

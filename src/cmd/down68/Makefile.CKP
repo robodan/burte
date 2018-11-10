@@ -1,0 +1,17 @@
+GROUPBIN = /afs/andrew.cmu.edu/usr0/rc99/bin/$C
+# should be /usrthm0/rclub
+CFLAGS = -O
+LIB =
+
+dl68:	dl68.o
+	gcc -o dl68 dl68.o $(LIB)
+
+down68: down68.o
+	cc -o down68 down68.o $(LIB)
+
+install:
+	cp dl68 $(GROUPBIN)
+
+clean:
+	rm -f down68 down68.o dl68 dl68.o core a.out
+
