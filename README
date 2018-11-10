@@ -2,8 +2,11 @@
                  Basic Universal Real Time Executive
 
 BURTE V2.12 is a mini-kernel for the MC68332.  It was originally
-written for the 68000 by Daniel A. Christian, and ported to the 332 by
+written for the 68000 by Dan Christian, and ported to the 332 by
 Andrew H. Fagg (ahfagg@robotics.usc.edu).
+
+The code is mainly for historical purposes.  It hasn't been maintained
+in years.
 
 
 This package comes with:
